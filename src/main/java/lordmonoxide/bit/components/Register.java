@@ -57,6 +57,12 @@ public class Register extends Component {
     return this.out[pin];
   }
 
+  public void clear() {
+    for(int i = 0; i < this.size; i++) {
+      this.bits[i].clear();
+    }
+  }
+
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder("Register [");

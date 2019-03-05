@@ -22,6 +22,10 @@ public class DLatch extends Component {
     }
   });
 
+  public void clear() {
+    this.output.setLow();
+  }
+
   @Override
   public String toString() {
     return "D Latch [" + this.input.getState() + " -> " + this.output.getState() + ']';

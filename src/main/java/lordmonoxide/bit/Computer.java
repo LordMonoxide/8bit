@@ -2,12 +2,47 @@ package lordmonoxide.bit;
 
 import lordmonoxide.bit.components.ALU;
 import lordmonoxide.bit.components.Clock;
+import lordmonoxide.bit.components.Counter;
 import lordmonoxide.bit.components.Register;
 import lordmonoxide.bit.components.Transceiver;
 import org.jetbrains.annotations.NotNull;
 
 public class Computer {
   public static void main(@NotNull final String[] args) throws InterruptedException {
+    System.out.println("STARTING");
+
+    final Clock clock = new Clock(1);
+
+    final Counter counter = Counter.eightBit();
+    counter.clock.connectTo(clock.out);
+    counter.load.setLow();
+    counter.clear();
+
+    for(int i = 0; i < counter.size; i++) {
+      counter.in(i).setLow();
+    }
+
+    System.out.println(counter.toBits() + ", " + counter.toInt());
+
+    counter.in(4).setHigh();
+    counter.load.setHigh();
+    clock.out.setHigh();
+    clock.out.setLow();
+    counter.load.setLow();
+
+    System.out.println(counter.toBits() + ", " + counter.toInt());
+
+    do {
+      clock.out.setHigh();
+      clock.out.setLow();
+
+      System.out.println(counter.toBits() + ", " + counter.toInt());
+
+      Thread.sleep(100);
+    } while(true);
+  }
+
+  public static void main2(@NotNull final String[] args) throws InterruptedException {
     System.out.println("STARTING");
 
     final Clock clock = new Clock(1);
