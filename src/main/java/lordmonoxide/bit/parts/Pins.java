@@ -6,7 +6,7 @@ public final class Pins {
   public static String toBits(final Pin... pins) {
     final String out = Integer.toString(toInt(pins), 2);
 
-    final int paddedLength = (Math.floorDiv(out.length(), 8) + 1) * 8;
+    final int paddedLength = (int)Math.ceil(out.length() / 8.0f) * 8;
 
     if(out.length() == paddedLength) {
       return out;
