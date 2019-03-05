@@ -3,6 +3,7 @@ package lordmonoxide.bit.components;
 import lordmonoxide.bit.parts.Component;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
+import lordmonoxide.bit.parts.Pins;
 
 public class ALU extends Component {
   private final FullAdder[] adders = {
@@ -49,14 +50,22 @@ public class ALU extends Component {
   @Override
   public String toString() {
     return "ALU: carry in: " + this.carryIn.getState() + '\n' +
-      this.a0.getState() + " + " + this.b0.getState() + " = " + this.out0.getState() + '\n' +
-      this.a1.getState() + " + " + this.b1.getState() + " = " + this.out1.getState() + '\n' +
-      this.a2.getState() + " + " + this.b2.getState() + " = " + this.out2.getState() + '\n' +
-      this.a3.getState() + " + " + this.b3.getState() + " = " + this.out3.getState() + '\n' +
-      this.a4.getState() + " + " + this.b4.getState() + " = " + this.out4.getState() + '\n' +
-      this.a5.getState() + " + " + this.b5.getState() + " = " + this.out5.getState() + '\n' +
-      this.a6.getState() + " + " + this.b6.getState() + " = " + this.out6.getState() + '\n' +
       this.a7.getState() + " + " + this.b7.getState() + " = " + this.out7.getState() + '\n' +
+      this.a6.getState() + " + " + this.b6.getState() + " = " + this.out6.getState() + '\n' +
+      this.a5.getState() + " + " + this.b5.getState() + " = " + this.out5.getState() + '\n' +
+      this.a4.getState() + " + " + this.b4.getState() + " = " + this.out4.getState() + '\n' +
+      this.a3.getState() + " + " + this.b3.getState() + " = " + this.out3.getState() + '\n' +
+      this.a2.getState() + " + " + this.b2.getState() + " = " + this.out2.getState() + '\n' +
+      this.a1.getState() + " + " + this.b1.getState() + " = " + this.out1.getState() + '\n' +
+      this.a0.getState() + " + " + this.b0.getState() + " = " + this.out0.getState() + '\n' +
       "Carry out: " + this.carryOut.getState();
+  }
+
+  public String toBits() {
+    return Pins.toBits(this.out0, this.out1, this.out2, this.out3, this.out4, this.out5, this.out6, this.out7);
+  }
+
+  public int toInt() {
+    return Pins.toInt(this.out0, this.out1, this.out2, this.out3, this.out4, this.out5, this.out6, this.out7);
   }
 }

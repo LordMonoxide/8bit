@@ -5,12 +5,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-public class InputPin {
+public class InputPin extends Pin {
   @Nullable
   private OutputPin connection;
-
-  @NotNull
-  private PinState state = PinState.HIGH;
 
   @NotNull
   private final Consumer<PinState> onStateChange;
@@ -33,6 +30,18 @@ public class InputPin {
     return this;
   }
 
+  public InputPin disconnect() {
+    this.setState(PinState.DISCONNECTED);
+
+    if(this.connection == null) {
+      return this;
+    }
+
+    this.connection.removeConnection(this);
+    this.connection = null;
+    return this;
+  }
+
   public InputPin setHigh() {
     return this.setState(PinState.HIGH);
   }
@@ -41,9 +50,16 @@ public class InputPin {
     return this.setState(PinState.LOW);
   }
 
-  @NotNull
-  public PinState getState() {
-    return this.state;
+  public boolean isHigh() {
+    return this.getState() == PinState.HIGH;
+  }
+
+  public boolean isLow() {
+    return this.getState() == PinState.LOW;
+  }
+
+  public boolean isDisconnected() {
+    return this.getState() == PinState.DISCONNECTED;
   }
 
   public InputPin setState(@NotNull final PinState state) {
@@ -52,7 +68,7 @@ public class InputPin {
     return this;
   }
 
-  public static class AggregateInputPin extends InputPin {
+  public static final class AggregateInputPin extends InputPin {
     private final InputPin[] pins;
 
     private AggregateInputPin(final InputPin... pins) {

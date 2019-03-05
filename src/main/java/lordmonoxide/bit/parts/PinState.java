@@ -1,18 +1,27 @@
 package lordmonoxide.bit.parts;
 
+import lordmonoxide.bit.FloatingPinException;
 import org.jetbrains.annotations.NotNull;
 
 public enum PinState {
-  HIGH, LOW;
+  HIGH, LOW, DISCONNECTED;
+
+  public int toInt() {
+    return this == HIGH ? 1 : 0;
+  }
 
   @NotNull
   public PinState and(@NotNull final PinState... states) {
-    if(this == LOW) {
+    if(this == DISCONNECTED) {
+      throw new FloatingPinException();
+    }
+
+    if(this != HIGH) {
       return LOW;
     }
 
     for(final PinState state : states) {
-      if(state == LOW) {
+      if(state != HIGH) {
         return LOW;
       }
     }
@@ -22,6 +31,10 @@ public enum PinState {
 
   @NotNull
   public PinState or(@NotNull final PinState... states) {
+    if(this == DISCONNECTED) {
+      throw new FloatingPinException();
+    }
+
     if(this == HIGH) {
       return HIGH;
     }
@@ -37,10 +50,14 @@ public enum PinState {
 
   @NotNull
   public PinState xor(@NotNull final PinState... states) {
-    int xor = this == HIGH ? 1 : 0;
+    if(this == DISCONNECTED) {
+      throw new FloatingPinException();
+    }
+
+    int xor = this.toInt();
 
     for(final PinState state : states) {
-      xor ^= state == HIGH ? 1 : 0;
+      xor ^= state.toInt();
     }
 
     return xor == 1 ? HIGH : LOW;
@@ -48,6 +65,10 @@ public enum PinState {
 
   @NotNull
   public PinState not() {
+    if(this == DISCONNECTED) {
+      throw new FloatingPinException();
+    }
+
     return this == HIGH ? LOW : HIGH;
   }
 }
