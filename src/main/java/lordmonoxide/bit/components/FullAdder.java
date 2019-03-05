@@ -11,17 +11,17 @@ public class FullAdder extends Component {
   private final Xor sumXor = new Xor();
   private final Or  carryOr = new Or();
 
-  public final InputPin a = InputPin.aggregate(this.aXorB.a, this.aAndB.a);
-  public final InputPin b = InputPin.aggregate(this.aXorB.b, this.aAndB.b);
-  public final InputPin carryIn = InputPin.aggregate(this.sumXor.b, this.aXorBAndC.b);
+  public final InputPin a = InputPin.aggregate(this.aXorB.in(0), this.aAndB.in(0));
+  public final InputPin b = InputPin.aggregate(this.aXorB.in(1), this.aAndB.in(1));
+  public final InputPin carryIn = InputPin.aggregate(this.sumXor.in(1), this.aXorBAndC.in(1));
   public final OutputPin out = this.sumXor.out;
   public final OutputPin carryOut = this.carryOr.out;
 
   public FullAdder() {
-    this.sumXor.a.connectTo(this.aXorB.out);
-    this.aXorBAndC.a.connectTo(this.aXorB.out);
-    this.carryOr.a.connectTo(this.aXorBAndC.out);
-    this.carryOr.b.connectTo(this.aAndB.out);
+    this.sumXor.in(0).connectTo(this.aXorB.out);
+    this.aXorBAndC.in(0).connectTo(this.aXorB.out);
+    this.carryOr.in(0).connectTo(this.aXorBAndC.out);
+    this.carryOr.in(1).connectTo(this.aAndB.out);
   }
 
   @Override
