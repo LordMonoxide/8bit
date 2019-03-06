@@ -9,6 +9,8 @@ public class ALUBoard extends Board {
   public ALUBoard() {
     this.alu.carryIn.setLow();
 
+    this.transceiver.dir.setLow();
+
     for(int i = 0; i < this.transceiver.size; i++ ) {
       this.transceiver.in(TransceiverSide.B, i).connectTo(this.alu.out(i));
     }

@@ -1,6 +1,7 @@
 package lordmonoxide.bit;
 
 import lordmonoxide.bit.boards.ALUBoard;
+import lordmonoxide.bit.boards.OutputBoard;
 import lordmonoxide.bit.boards.RegisterBoard;
 import lordmonoxide.bit.components.Bus;
 import lordmonoxide.bit.components.Clock;
@@ -36,9 +37,12 @@ public class Computer {
       alu.alu.b(i).connectTo(registerB.register.out(i));
     }
 
-    alu.transceiver.dir.setLow();
-
     bus.connect(alu.transceiver, TransceiverSide.A);
+
+    // OUTPUT SETUP
+    final OutputBoard output = new OutputBoard();
+    output.clock.connectTo(clock.out);
+    bus.connect(output.transceiver, TransceiverSide.A);
 
     // DATA
 
@@ -61,18 +65,20 @@ public class Computer {
     registerB.transceiver.enable.setLow();
 
     do {
+      output.transceiver.enable.setHigh();
+      output.load.setHigh();
       alu.transceiver.enable.setHigh();
       registerA.transceiver.enable.setHigh();
       registerA.register.load.setHigh();
+
       clock.out.setHigh();
       clock.out.setLow();
+
       registerA.register.load.setLow();
       registerA.transceiver.enable.setLow();
       alu.transceiver.enable.setLow();
-
-      System.out.println("A: " + registerA.register.toBits() + ", " + registerA.register.toInt());
-      System.out.println("B: " + registerB.register.toBits() + ", " + registerB.register.toInt());
-      System.out.println("ALU: " + alu.alu.toBits() + ", " + alu.alu.toInt());
+      output.load.setLow();
+      output.transceiver.enable.setLow();
 
       Thread.sleep(500);
     } while(true);
