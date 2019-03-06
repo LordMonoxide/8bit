@@ -4,6 +4,7 @@ import lordmonoxide.bit.parts.Component;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
 import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.Pins;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -49,5 +50,10 @@ public class Bus extends Component {
     }
 
     this.in.put(transceiver, in);
+  }
+
+  @Override
+  public String toString() {
+    return "Bus: " + Pins.toBits(this.out);
   }
 }

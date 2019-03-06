@@ -38,6 +38,10 @@ public class Output extends Component {
     return this.register.in(pin);
   }
 
+  public void clear() {
+    this.register.clear();
+  }
+
   private void onClock(final PinState state) {
     if(state == PinState.HIGH) {
       System.out.println(Pins.toInt(this.in));
