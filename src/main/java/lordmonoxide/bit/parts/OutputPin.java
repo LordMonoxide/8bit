@@ -20,10 +20,12 @@ public class OutputPin extends Pin {
     this.connections.remove(pin);
   }
 
+  @NotNull
   public OutputPin setHigh() {
     return this.setState(PinState.HIGH);
   }
 
+  @NotNull
   public OutputPin setLow() {
     return this.setState(PinState.LOW);
   }
@@ -34,23 +36,26 @@ public class OutputPin extends Pin {
     return this.disabled ? PinState.DISCONNECTED : super.getState();
   }
 
+  @NotNull
   public OutputPin disable() {
     this.disabled = true;
     this.connections.forEach(pin -> pin.setState(PinState.DISCONNECTED));
     return this;
   }
 
+  @NotNull
   public OutputPin enable() {
     this.disabled = false;
-    this.connections.forEach(pin -> pin.setState(this.state));
+    this.connections.forEach(pin -> pin.setState(this.getState()));
     return this;
   }
 
+  @NotNull
   public OutputPin setState(@NotNull final PinState state) {
     this.state = state;
 
     if(!this.disabled) {
-      this.connections.forEach(pin -> pin.setState(this.state));
+      this.connections.forEach(pin -> pin.setState(this.getState()));
     }
 
     return this;

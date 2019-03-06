@@ -7,11 +7,12 @@ import lordmonoxide.bit.parts.OutputPin;
 import lordmonoxide.bit.parts.PinState;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 public class Transceiver extends Component {
-  private final InputPin[] aIn;
-  private final InputPin[] bIn;
-  private final OutputPin[] aOut;
-  private final OutputPin[] bOut;
+  private final Map<TransceiverSide, InputPin[]> in = new EnumMap<>(TransceiverSide.class);
+  private final Map<TransceiverSide, OutputPin[]> out = new EnumMap<>(TransceiverSide.class);
 
   /**
    * LOW = b->a, HIGH = a->b
@@ -30,38 +31,33 @@ public class Transceiver extends Component {
   public Transceiver(final int size) {
     this.size = size;
 
-    this.aIn = new InputPin[size];
-    this.bIn = new InputPin[size];
-    this.aOut = new OutputPin[size];
-    this.bOut = new OutputPin[size];
+    final InputPin[] aIn = new InputPin[size];
+    final InputPin[] bIn = new InputPin[size];
+    final OutputPin[] aOut = new OutputPin[size];
+    final OutputPin[] bOut = new OutputPin[size];
 
     for(int i = 0; i < size; i++) {
       final int i1 = i;
-      this.aIn[i] = new InputPin(state -> this.changeState(this.aIn[i1], this.aOut[i1]));
-      this.bIn[i] = new InputPin(state -> this.changeState(this.bIn[i1], this.bOut[i1]));
-      this.aOut[i] = new OutputPin();
-      this.bOut[i] = new OutputPin();
+      aIn[i] = new InputPin(state -> this.changeState(aIn[i1], bOut[i1]));
+      bIn[i] = new InputPin(state -> this.changeState(bIn[i1], aOut[i1]));
+      aOut[i] = new OutputPin();
+      bOut[i] = new OutputPin();
     }
+
+    this.in.put(TransceiverSide.A, aIn);
+    this.in.put(TransceiverSide.B, bIn);
+    this.out.put(TransceiverSide.A, aOut);
+    this.out.put(TransceiverSide.B, bOut);
   }
 
   @NotNull
-  public InputPin aIn(final int pin) {
-    return this.aIn[pin];
+  public InputPin in(final TransceiverSide side, final int pin) {
+    return this.in.get(side)[pin];
   }
 
   @NotNull
-  public InputPin bIn(final int pin) {
-    return this.bIn[pin];
-  }
-
-  @NotNull
-  public OutputPin aOut(final int pin) {
-    return this.aOut[pin];
-  }
-
-  @NotNull
-  public OutputPin bOut(final int pin) {
-    return this.bOut[pin];
+  public OutputPin out(final TransceiverSide side, final int pin) {
+    return this.out.get(side)[pin];
   }
 
   private void changeOutput(final PinState state) {
@@ -69,21 +65,24 @@ public class Transceiver extends Component {
       throw new FloatingPinException();
     }
 
+    final OutputPin[] aOut = this.out.get(TransceiverSide.A);
+    final OutputPin[] bOut = this.out.get(TransceiverSide.B);
+
     for(int i = 0; i < this.size; i++) {
-      this.aOut[0].disable();
-      this.bOut[0].disable();
+      aOut[i].disable();
+      bOut[i].disable();
     }
 
     if(this.enable.isHigh()) {
       if(this.dir.isHigh()) {
         for(int i = 0; i < this.size; i++) {
-          this.aOut[0].enable();
+          bOut[i].enable();
         }
       }
 
       if(this.dir.isLow()) {
         for(int i = 0; i < this.size; i++) {
-          this.bOut[0].enable();
+          aOut[i].enable();
         }
       }
     }
