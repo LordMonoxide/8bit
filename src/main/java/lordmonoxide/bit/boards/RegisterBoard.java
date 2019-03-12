@@ -19,9 +19,9 @@ public class RegisterBoard extends Board {
     this.name = name;
 
     this.register = new Register(size);
-    this.enable = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " EN " + state)), this.getTransceiver().enable);
-    this.clock = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " CLK " + state)), this.register.clock);
-    this.input = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " IN " + state)), this.register.load, this.getTransceiver().dir);
+    this.enable = this.getTransceiver().enable;
+    this.clock = this.register.clock;
+    this.input = InputPin.aggregate(this.register.load, this.getTransceiver().dir);
 
     for(int i = 0; i < this.size; i++) {
       this.getTransceiver().in(TransceiverSide.B, i).connectTo(this.register.out(i));

@@ -15,8 +15,6 @@ public class Bus extends Component {
   private final Map<Transceiver, InputPin[]> in = new HashMap<>();
   private final OutputPin[] out;
 
-  private final boolean[] inputs;
-
   public final int size;
 
   public static Bus eightBit() {
@@ -26,7 +24,6 @@ public class Bus extends Component {
   public Bus(final int size) {
     this.size = size;
     this.out = new OutputPin[size];
-    this.inputs = new boolean[size];
 
     for(int i = 0; i < size; i++) {
       this.out[i] = new OutputPin();

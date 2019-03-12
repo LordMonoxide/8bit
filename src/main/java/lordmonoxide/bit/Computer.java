@@ -12,11 +12,11 @@ import lordmonoxide.bit.cpu.CPU;
 import lordmonoxide.bit.cpu.CPUInstructions;
 
 public class Computer {
-  public static void main(final String[] args) throws InterruptedException {
+  public static void main(final String[] args) {
     final Bus bus = Bus.eightBit();
 
     // CLOCK SETUP
-    final Clock clock = new Clock(1);
+    final Clock clock = new Clock(10);
 
     final CPU cpu = new CPU(8);
     cpu.clock.connectTo(clock.out);
@@ -79,6 +79,7 @@ public class Computer {
     bus.connect(instruction);
 
     // CPU SETUP
+    clock.halt.connectTo(cpu.halt);
     registerA.input.connectTo(cpu.aIn);
     registerA.enable.connectTo(cpu.aEnable);
     registerB.input.connectTo(cpu.bIn);
@@ -90,7 +91,6 @@ public class Computer {
     bank.enable.connectTo(cpu.bankEnable);
     bank.disable.connectTo(cpu.bankDisable);
     ram.input.connectTo(cpu.ramIn);
-    ram.output.connectTo(cpu.ramOut);
     ram.enable.connectTo(cpu.ramEnable);
     counter.input.connectTo(cpu.countIn);
     counter.enable.connectTo(cpu.countEnable);
@@ -108,16 +108,12 @@ public class Computer {
     ram.set(0, CPUInstructions.LDA.ordinal());
     ram.set(1, 255);
     ram.set(2, CPUInstructions.OUT.ordinal());
+    ram.set(3, CPUInstructions.HALT.ordinal());
     ram.set(255, 123);
 
     System.out.println("STARTING");
 
-    do {
-      System.out.println("CLOCK -----------");
-      clock.out.setHigh();
-      clock.out.setLow();
-      Thread.sleep(2000);
-    } while(true);
+    clock.run();
 
     // DATA
 

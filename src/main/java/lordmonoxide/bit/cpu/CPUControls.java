@@ -5,6 +5,7 @@ import lordmonoxide.bit.parts.OutputPin;
 import java.util.function.Function;
 
 public enum CPUControls {
+  HALT(cpu -> cpu.halt),
   A_IN(cpu -> cpu.aIn),
   A_EN(cpu -> cpu.aEnable),
   B_IN(cpu -> cpu.bIn),
@@ -16,7 +17,6 @@ public enum CPUControls {
   BNK_EN(cpu -> cpu.bankEnable),
   BNK_DIS(cpu -> cpu.bankDisable),
   RAM_IN(cpu -> cpu.ramIn),
-  RAM_OUT(cpu -> cpu.ramOut),
   RAM_EN(cpu -> cpu.ramEnable),
   CNT_IN(cpu -> cpu.countIn),
   CNT_EN(cpu -> cpu.countEnable),

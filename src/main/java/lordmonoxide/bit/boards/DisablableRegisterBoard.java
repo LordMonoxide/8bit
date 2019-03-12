@@ -6,8 +6,6 @@ import lordmonoxide.bit.components.Register;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
-import lordmonoxide.bit.parts.Pins;
 
 public class DisablableRegisterBoard extends Board {
   public final String name;
@@ -18,7 +16,6 @@ public class DisablableRegisterBoard extends Board {
   public final InputPin enable;
   public final InputPin clock;
   public final InputPin input;
-  public final InputPin output;
   public final InputPin disable;
 
   public DisablableRegisterBoard(final String name, final int size) {
@@ -27,26 +24,10 @@ public class DisablableRegisterBoard extends Board {
     this.name = name;
 
     this.register = new Register(size);
-    this.enable = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " EN " + state)), this.getTransceiver().enable);
-    this.clock = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " CLK " + state)), this.register.clock);
-
-    this.input = InputPin.aggregate(this.register.load, new InputPin(state -> {
-      System.out.println(this.name + " IN " + state);
-
-      if(state == PinState.HIGH) {
-        this.getTransceiver().dir.connectTo(Pins.VCC);
-      }
-    }));
-
-    this.output = new InputPin(state -> {
-      System.out.println(this.name + " OUT " + state);
-
-      if(state == PinState.HIGH) {
-        this.getTransceiver().dir.connectTo(Pins.GND);
-      }
-    });
-
-    this.disable = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " DIS " + state)), this.not.in);
+    this.enable = this.getTransceiver().enable;
+    this.clock = this.register.clock;
+    this.input = InputPin.aggregate(this.register.load, this.getTransceiver().dir);
+    this.disable = this.not.in;
 
     this.and = new And[size];
 

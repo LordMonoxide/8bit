@@ -7,6 +7,7 @@ import lordmonoxide.bit.parts.PinState;
 import lordmonoxide.bit.parts.Pins;
 
 public class CPU extends Component {
+  public final OutputPin halt = new OutputPin();
   public final OutputPin aIn = new OutputPin();
   public final OutputPin aEnable = new OutputPin();
   public final OutputPin bIn = new OutputPin();
@@ -18,7 +19,6 @@ public class CPU extends Component {
   public final OutputPin bankEnable = new OutputPin();
   public final OutputPin bankDisable = new OutputPin();
   public final OutputPin ramIn = new OutputPin();
-  public final OutputPin ramOut = new OutputPin();
   public final OutputPin ramEnable = new OutputPin();
   public final OutputPin countIn = new OutputPin();
   public final OutputPin countEnable = new OutputPin();
@@ -47,15 +47,13 @@ public class CPU extends Component {
   }
 
   private void onClock(final PinState state) {
-    System.out.println("CPU CLK " + state);
-
     if(state != PinState.HIGH) {
       return;
     }
 
     final CPUInstructions instruction = CPUInstructions.values()[Pins.toInt(this.instruction)];
 
-    System.out.println(instruction + " " + this.step);
+    //System.out.println(instruction + " " + this.step);
 
     CPUControls.reset(this);
     instruction.activate(this, this.step);

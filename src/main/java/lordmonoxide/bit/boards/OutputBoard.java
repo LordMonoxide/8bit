@@ -19,9 +19,9 @@ public class OutputBoard extends Board {
     this.name = name;
 
     this.output = new Output(size);
-    this.enable = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " EN " + state)), this.getTransceiver().enable);
-    this.input = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " IN " + state)), this.output.load);
-    this.clock = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " CLK " + state)), this.output.clock);
+    this.enable = this.getTransceiver().enable;
+    this.input = this.output.load;
+    this.clock = this.output.clock;
 
     this.getTransceiver().dir.connectTo(Pins.VCC);
 

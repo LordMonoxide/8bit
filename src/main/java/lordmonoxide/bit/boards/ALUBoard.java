@@ -18,7 +18,7 @@ public class ALUBoard extends Board {
 
     this.alu = new ALU(size);
     this.alu.carryIn.connectTo(Pins.GND);
-    this.enable = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " EN " + state)), this.getTransceiver().enable);
+    this.enable = this.getTransceiver().enable;
 
     this.getTransceiver().dir.connectTo(Pins.GND);
 
