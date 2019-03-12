@@ -4,7 +4,6 @@ import lordmonoxide.bit.parts.Component;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
 import lordmonoxide.bit.parts.Pins;
-import org.jetbrains.annotations.NotNull;
 
 public class ALU extends Component {
   private final FullAdder[] adders;
@@ -16,11 +15,6 @@ public class ALU extends Component {
   public final OutputPin carryOut;
 
   public final int size;
-
-  @NotNull
-  public static ALU eightBit() {
-    return new ALU(8);
-  }
 
   public ALU(final int size) {
     this.size = size;
@@ -45,17 +39,14 @@ public class ALU extends Component {
     this.carryOut = this.adders[size - 1].carryOut;
   }
 
-  @NotNull
   public InputPin a(final int pin) {
     return this.a[pin];
   }
 
-  @NotNull
   public InputPin b(final int pin) {
     return this.b[pin];
   }
 
-  @NotNull
   public OutputPin out(final int pin) {
     return this.out[pin];
   }

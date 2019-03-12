@@ -3,7 +3,7 @@ package lordmonoxide.bit.boards;
 import lordmonoxide.bit.components.Transceiver;
 
 public abstract class Board {
-  public final Transceiver transceiver;
+  private final Transceiver transceiver;
 
   public final int size;
 
@@ -12,5 +12,9 @@ public abstract class Board {
     this.transceiver = new Transceiver(size);
     this.transceiver.dir.setLow();
     this.transceiver.enable.setLow();
+  }
+
+  Transceiver getTransceiver() {
+    return this.transceiver;
   }
 }

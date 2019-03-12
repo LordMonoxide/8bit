@@ -1,29 +1,31 @@
 package lordmonoxide.bit.boards;
 
-import lordmonoxide.bit.components.RAM;
+import lordmonoxide.bit.components.Counter;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.PinState;
 
-public class RAMBoard extends Board {
+public class CounterBoard extends Board {
   public final String name;
-  private final RAM ram;
+  private final Counter counter;
 
   public final InputPin enable;
   public final InputPin clock;
   public final InputPin input;
   public final InputPin output;
+  public final InputPin count;
 
-  public RAMBoard(final String name, final int addressSize, final int wordSize) {
-    super(wordSize);
+  public CounterBoard(final String name, final int size) {
+    super(size);
 
     this.name = name;
 
-    this.ram = new RAM(addressSize, wordSize);
+    this.counter = new Counter(size);
     this.enable = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " EN " + state)), this.getTransceiver().enable);
-    this.clock = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " CLK "  + state)), this.ram.clock);
+    this.clock = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " CLK " + state)), this.counter.clock);
+    this.count = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " CNT " + state)), this.counter.count);
 
-    this.input = InputPin.aggregate(this.ram.load, new InputPin(state -> {
+    this.input = InputPin.aggregate(this.counter.load, new InputPin(state -> {
       System.out.println(this.name + " IN " + state);
 
       if(state == PinState.HIGH) {
@@ -40,25 +42,17 @@ public class RAMBoard extends Board {
     });
 
     for(int i = 0; i < this.size; i++) {
-      this.getTransceiver().in(TransceiverSide.B, i).connectTo(this.ram.out(i));
-      this.ram.in(i).connectTo(this.getTransceiver().out(TransceiverSide.B, i));
+      this.getTransceiver().in(TransceiverSide.B, i).connectTo(this.counter.out(i));
+      this.counter.in(i).connectTo(this.getTransceiver().out(TransceiverSide.B, i));
     }
   }
 
-  public InputPin address(final int pin) {
-    return this.ram.address(pin);
-  }
-
-  public void set(final int address, final int value) {
-    this.ram.set(address, value);
-  }
-
   public void clear() {
-    this.ram.clear();
+    this.counter.clear();
   }
 
   @Override
   public String toString() {
-    return this.name + ": " + this.ram;
+    return this.name + ": " + this.counter;
   }
 }

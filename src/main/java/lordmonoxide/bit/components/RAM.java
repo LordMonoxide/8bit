@@ -55,6 +55,10 @@ public class RAM extends Component {
     return this.valueOut[pin];
   }
 
+  public void set(final int address, final int value) {
+    this.values[address] = value;
+  }
+
   public void clear() {
     final int addressCount = (int)Math.pow(2, addressSize);
 

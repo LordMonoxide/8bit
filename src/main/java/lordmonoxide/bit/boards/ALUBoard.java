@@ -3,30 +3,33 @@ package lordmonoxide.bit.boards;
 import lordmonoxide.bit.components.ALU;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputPin;
-import org.jetbrains.annotations.NotNull;
 
 public class ALUBoard extends Board {
+  public final String name;
   private final ALU alu;
 
-  public ALUBoard(final int size) {
+  public final InputPin enable;
+
+  public ALUBoard(final String name, final int size) {
     super(size);
+
+    this.name = name;
 
     this.alu = new ALU(size);
     this.alu.carryIn.setLow();
+    this.enable = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " EN " + state)), this.getTransceiver().enable);
 
-    this.transceiver.dir.setLow();
+    this.getTransceiver().dir.setLow();
 
     for(int i = 0; i < this.size; i++ ) {
-      this.transceiver.in(TransceiverSide.B, i).connectTo(this.alu.out(i));
+      this.getTransceiver().in(TransceiverSide.B, i).connectTo(this.alu.out(i));
     }
   }
 
-  @NotNull
   public InputPin a(final int pin) {
     return this.alu.a(pin);
   }
 
-  @NotNull
   public InputPin b(final int pin) {
     return this.alu.b(pin);
   }

@@ -1,11 +1,11 @@
 package lordmonoxide.bit.components;
 
+import lordmonoxide.bit.FloatingPinException;
 import lordmonoxide.bit.parts.Component;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
 import lordmonoxide.bit.parts.PinState;
 import lordmonoxide.bit.parts.Pins;
-import org.jetbrains.annotations.NotNull;
 
 public class Counter extends Component {
   private final InputPin[] in;
@@ -13,15 +13,11 @@ public class Counter extends Component {
 
   public final InputPin load = new InputPin();
   public final InputPin clock = new InputPin(this::onClock);
+  public final InputPin count = new InputPin();
 
   public final int size;
 
-  private int count;
-
-  @NotNull
-  public static Counter eightBit() {
-    return new Counter(8);
-  }
+  private int value;
 
   public Counter(final int size) {
     this.size = size;
@@ -35,27 +31,31 @@ public class Counter extends Component {
     }
   }
 
-  @NotNull
   public InputPin in(final int pin) {
     return this.in[pin];
   }
 
-  @NotNull
   public OutputPin out(final int pin) {
     return this.out[pin];
   }
 
   public void clear() {
-    this.count = 0;
+    this.value = 0;
     this.updateOutput();
   }
 
   private void onClock(final PinState state) {
+    if(this.count.isDisconnected()) {
+      throw new FloatingPinException();
+    }
+
     if(state == PinState.HIGH) {
-      this.count++;
+      if(this.count.isHigh()) {
+        this.value++;
+      }
 
       if(this.load.isHigh()) {
-        this.count = Pins.toInt(this.in);
+        this.value = Pins.toInt(this.in);
       }
 
       this.updateOutput();
@@ -64,7 +64,7 @@ public class Counter extends Component {
 
   private void updateOutput() {
     for(int i = 0; i < this.size; i++) {
-      this.out(i).setState(Pins.fromInt(this.count, i));
+      this.out(i).setState(Pins.fromInt(this.value, i));
     }
   }
 
@@ -73,10 +73,10 @@ public class Counter extends Component {
     final StringBuilder builder = new StringBuilder("Counter [");
 
     for(int i = this.size - 1; i > 0; i--) {
-      builder.append(this.out(i)).append(", ");
+      builder.append(this.out(i).getState()).append(", ");
     }
 
-    builder.append(this.out(0)).append(']');
+    builder.append(this.out(0).getState()).append(']');
 
     return builder.toString();
   }

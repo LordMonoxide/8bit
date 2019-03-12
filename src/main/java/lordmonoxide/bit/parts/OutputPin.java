@@ -1,57 +1,48 @@
 package lordmonoxide.bit.parts;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class OutputPin extends Pin {
-  @NotNull
   private final List<InputPin> connections = new ArrayList<>();
 
   private boolean disabled;
 
-  void addConnection(@NotNull final InputPin pin) {
+  void addConnection(final InputPin pin) {
     this.connections.add(pin);
     pin.setState(this.getState());
   }
 
-  void removeConnection(@NotNull final InputPin pin) {
+  void removeConnection(final InputPin pin) {
     this.connections.remove(pin);
   }
 
-  @NotNull
   public OutputPin setHigh() {
     return this.setState(PinState.HIGH);
   }
 
-  @NotNull
   public OutputPin setLow() {
     return this.setState(PinState.LOW);
   }
 
-  @NotNull
   @Override
   public PinState getState() {
     return this.disabled ? PinState.DISCONNECTED : super.getState();
   }
 
-  @NotNull
   public OutputPin disable() {
     this.disabled = true;
     this.connections.forEach(pin -> pin.setState(PinState.DISCONNECTED));
     return this;
   }
 
-  @NotNull
   public OutputPin enable() {
     this.disabled = false;
     this.connections.forEach(pin -> pin.setState(this.getState()));
     return this;
   }
 
-  @NotNull
-  public OutputPin setState(@NotNull final PinState state) {
+  public OutputPin setState(final PinState state) {
     this.state = state;
 
     if(!this.disabled) {

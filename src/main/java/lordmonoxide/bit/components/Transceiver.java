@@ -5,7 +5,6 @@ import lordmonoxide.bit.parts.Component;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
 import lordmonoxide.bit.parts.PinState;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -22,11 +21,6 @@ public class Transceiver extends Component {
   public final InputPin enable = new InputPin(this::changeOutput);
 
   public final int size;
-
-  @NotNull
-  public static Transceiver eightBit() {
-    return new Transceiver(8);
-  }
 
   public Transceiver(final int size) {
     this.size = size;
@@ -50,12 +44,10 @@ public class Transceiver extends Component {
     this.out.put(TransceiverSide.B, bOut);
   }
 
-  @NotNull
   public InputPin in(final TransceiverSide side, final int pin) {
     return this.in.get(side)[pin];
   }
 
-  @NotNull
   public OutputPin out(final TransceiverSide side, final int pin) {
     return this.out.get(side)[pin];
   }

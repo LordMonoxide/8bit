@@ -1,184 +1,245 @@
 package lordmonoxide.bit;
 
 import lordmonoxide.bit.boards.ALUBoard;
+import lordmonoxide.bit.boards.Bus;
+import lordmonoxide.bit.boards.CounterBoard;
+import lordmonoxide.bit.boards.DisablableRegisterBoard;
 import lordmonoxide.bit.boards.OutputBoard;
 import lordmonoxide.bit.boards.RAMBoard;
 import lordmonoxide.bit.boards.RegisterBoard;
-import lordmonoxide.bit.components.Bus;
 import lordmonoxide.bit.components.Clock;
-import lordmonoxide.bit.components.TransceiverSide;
-import org.jetbrains.annotations.NotNull;
+import lordmonoxide.bit.cpu.CPU;
+import lordmonoxide.bit.cpu.CPUInstructions;
 
 public class Computer {
-  public static void main(@NotNull final String[] args) throws InterruptedException {
-    System.out.println("STARTING");
-
+  public static void main(final String[] args) throws InterruptedException {
     final Bus bus = Bus.eightBit();
 
     // CLOCK SETUP
     final Clock clock = new Clock(1);
 
+    final CPU cpu = new CPU(8);
+    cpu.clock.connectTo(clock.out);
+
     // A REGISTER SETUP
-    final RegisterBoard registerA = new RegisterBoard(8);
+    final RegisterBoard registerA = new RegisterBoard("A register", 8);
     registerA.clock.connectTo(clock.out);
 
-    bus.connect(registerA.transceiver, TransceiverSide.A);
+    bus.connect(registerA);
 
     // B REGISTER SETUP
-    final RegisterBoard registerB = new RegisterBoard(8);
+    final RegisterBoard registerB = new RegisterBoard("B register", 8);
     registerB.clock.connectTo(clock.out);
 
-    bus.connect(registerB.transceiver, TransceiverSide.A);
+    bus.connect(registerB);
 
     // ALU SETUP
-    final ALUBoard alu = new ALUBoard(8);
+    final ALUBoard alu = new ALUBoard("ALU", 8);
 
-    for(int i = 0; i < 8; i++) {
-      alu.a(i).connectTo(registerA.out(i));
-      alu.b(i).connectTo(registerB.out(i));
+    for(int pin = 0; pin < 8; pin++) {
+      alu.a(pin).connectTo(registerA.out(pin));
+      alu.b(pin).connectTo(registerB.out(pin));
     }
 
-    bus.connect(alu.transceiver, TransceiverSide.A);
+    bus.connect(alu);
 
     // OUTPUT SETUP
-    final OutputBoard output = new OutputBoard(8);
+    final OutputBoard output = new OutputBoard("Output register", 8);
     output.clock.connectTo(clock.out);
-    bus.connect(output.transceiver, TransceiverSide.A);
+    bus.connect(output);
 
     // ADDRESS REGISTER
-    final RegisterBoard address = new RegisterBoard(8);
+    final RegisterBoard address = new RegisterBoard("Address register", 8);
     address.clock.connectTo(clock.out);
-    address.transceiver.dir.setHigh();
-    bus.connect(address.transceiver, TransceiverSide.A);
+    bus.connect(address);
 
     // BANK REGISTER
-    final RegisterBoard bank = new RegisterBoard(8);
+    final DisablableRegisterBoard bank = new DisablableRegisterBoard("Bank register", 8);
     bank.clock.connectTo(clock.out);
-    bank.transceiver.dir.setHigh();
-    bus.connect(bank.transceiver, TransceiverSide.A);
+    bus.connect(bank);
 
     // RAM SETUP
-    final RAMBoard ram = new RAMBoard(16, 8);
+    final RAMBoard ram = new RAMBoard("RAM", 16, 8);
     ram.clock.connectTo(clock.out);
-    bus.connect(ram.transceiver, TransceiverSide.A);
+    bus.connect(ram);
 
-    for(int i = 0; i < 8; i++) {
-      ram.address(i).connectTo(address.out(i));
-      ram.address(i + 8).connectTo(bank.out(i));
+    for(int pin = 0; pin < 8; pin++) {
+      ram.address(pin).connectTo(address.out(pin));
+      ram.address(pin + 8).connectTo(bank.out(pin));
     }
+
+    // PROGRAM COUNTER
+    final CounterBoard counter = new CounterBoard("Program counter", 8);
+    counter.clock.connectTo(clock.out);
+    bus.connect(counter);
+
+    // INSTRUCTION REGISTER
+    final RegisterBoard instruction = new RegisterBoard("Instruction register", 8);
+    instruction.clock.connectTo(clock.out);
+    bus.connect(instruction);
+
+    // CPU SETUP
+    registerA.input.connectTo(cpu.aIn);
+    registerA.output.connectTo(cpu.aOut);
+    registerA.enable.connectTo(cpu.aEnable);
+    registerB.input.connectTo(cpu.bIn);
+    registerB.output.connectTo(cpu.bOut);
+    registerB.enable.connectTo(cpu.bEnable);
+    alu.enable.connectTo(cpu.aluEnable);
+    address.input.connectTo(cpu.addressIn);
+    address.enable.connectTo(cpu.addressEnable);
+    bank.input.connectTo(cpu.bankIn);
+    bank.enable.connectTo(cpu.bankEnable);
+    bank.disable.connectTo(cpu.bankDisable);
+    ram.input.connectTo(cpu.ramIn);
+    ram.output.connectTo(cpu.ramOut);
+    ram.enable.connectTo(cpu.ramEnable);
+    counter.input.connectTo(cpu.countIn);
+    counter.output.connectTo(cpu.countOut);
+    counter.enable.connectTo(cpu.countEnable);
+    counter.count.connectTo(cpu.countCount);
+    instruction.input.connectTo(cpu.instructionIn);
+    instruction.output.connectTo(cpu.instructionOut);
+    instruction.enable.connectTo(cpu.instructionEnable);
+    output.input.connectTo(cpu.outIn);
+    output.enable.connectTo(cpu.outEnable);
+
+    for(int pin = 0; pin < 8; pin++) {
+      cpu.instruction(pin).connectTo(instruction.out(pin));
+    }
+
+    // PROGRAM
+    ram.set(0, CPUInstructions.LDA.ordinal());
+    ram.set(1, 255);
+    ram.set(2, CPUInstructions.OUT.ordinal());
+    ram.set(255, 123);
+
+    System.out.println("STARTING");
+
+    do {
+      System.out.println("CLOCK -----------");
+      clock.out.setHigh();
+      clock.out.setLow();
+
+      System.out.println(counter);
+      System.out.println(instruction);
+      System.out.println(registerA);
+      System.out.println(address);
+      System.out.println(ram);
+      System.out.println(bus);
+      Thread.sleep(2000);
+    } while(true);
 
     // DATA
 
-    address.transceiver.enable.setHigh();
-    address.load.setHigh();
+/*
+    address.enable.setHigh();
+    address.input.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    address.load.setLow();
-    address.transceiver.enable.setLow();
+    address.input.setLow();
+    address.enable.setLow();
 
-    bank.transceiver.enable.setHigh();
-    bank.load.setHigh();
+    bank.enable.setHigh();
+    bank.input.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    bank.load.setLow();
-    bank.transceiver.enable.setLow();
+    bank.input.setLow();
+    bank.enable.setLow();
 
     bus.out(0).setHigh();
 
-    ram.transceiver.dir.setHigh();
-    ram.transceiver.enable.setHigh();
-    ram.load.setHigh();
+    ram.input.setHigh();
+    ram.enable.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    ram.load.setLow();
-    ram.transceiver.enable.setLow();
+    ram.enable.setLow();
+    ram.input.setLow();
 
     System.out.println(ram);
 
-    address.transceiver.enable.setHigh();
-    address.load.setHigh();
+    address.input.setHigh();
+    address.enable.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    address.load.setLow();
-    address.transceiver.enable.setLow();
+    address.enable.setLow();
+    address.input.setLow();
 
-    bank.transceiver.enable.setHigh();
-    bank.load.setHigh();
+    bank.input.setHigh();
+    bank.enable.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    bank.load.setLow();
-    bank.transceiver.enable.setLow();
+    bank.enable.setLow();
+    bank.input.setLow();
 
     bus.out(0).setLow();
     bus.out(1).setHigh();
 
-    ram.transceiver.dir.setHigh();
-    ram.transceiver.enable.setHigh();
-    ram.load.setHigh();
+    ram.input.setHigh();
+    ram.enable.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    ram.load.setLow();
-    ram.transceiver.enable.setLow();
+    ram.enable.setLow();
+    ram.input.setLow();
 
     bus.out(1).setLow();
 
     System.out.println(ram);
 
-    address.transceiver.enable.setHigh();
-    address.load.setHigh();
+    address.input.setHigh();
+    address.enable.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    address.load.setLow();
-    address.transceiver.enable.setLow();
+    address.enable.setLow();
+    address.input.setLow();
 
-    bank.transceiver.enable.setHigh();
-    bank.load.setHigh();
+    bank.input.setHigh();
+    bank.enable.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    bank.load.setLow();
-    bank.transceiver.enable.setLow();
+    bank.enable.setLow();
+    bank.input.setLow();
 
     System.out.println(ram);
 
-    ram.transceiver.dir.setLow();
-    ram.transceiver.enable.setHigh();
+    ram.enable.setHigh();
+    ram.output.setHigh();
 
     System.out.println(bus);
+*/
 
 /*
-    registerA.transceiver.dir.setHigh();
-    registerA.transceiver.enable.setHigh();
-    registerA.load.setHigh();
+    registerA.input.setHigh();
+    registerA.enable.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    registerA.load.setLow();
-    registerA.transceiver.enable.setLow();
+    registerA.enable.setLow();
+    registerA.input.setLow();
 
     bus.out(0).setHigh();
 
-    registerB.transceiver.dir.setHigh();
-    registerB.transceiver.enable.setHigh();
-    registerB.load.setHigh();
+    registerB.input.setHigh();
+    registerB.enable.setHigh();
     clock.out.setHigh();
     clock.out.setLow();
-    registerB.load.setLow();
-    registerB.transceiver.enable.setLow();
+    registerB.enable.setLow();
+    registerB.input.setLow();
 
     do {
-      output.transceiver.enable.setHigh();
-      output.load.setHigh();
-      alu.transceiver.enable.setHigh();
-      registerA.transceiver.enable.setHigh();
-      registerA.load.setHigh();
+      output.input.setHigh();
+      output.enable.setHigh();
+      alu.enable.setHigh();
+      registerA.enable.setHigh();
+      registerA.input.setHigh();
 
       clock.out.setHigh();
       clock.out.setLow();
 
-      registerA.load.setLow();
-      registerA.transceiver.enable.setLow();
-      alu.transceiver.enable.setLow();
-      output.load.setLow();
-      output.transceiver.enable.setLow();
+      registerA.input.setLow();
+      registerA.enable.setLow();
+      alu.enable.setLow();
+      output.enable.setLow();
+      output.input.setLow();
 
       Thread.sleep(500);
     } while(true);

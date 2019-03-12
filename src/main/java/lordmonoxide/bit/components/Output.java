@@ -4,7 +4,6 @@ import lordmonoxide.bit.parts.Component;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.PinState;
 import lordmonoxide.bit.parts.Pins;
-import org.jetbrains.annotations.NotNull;
 
 public class Output extends Component {
   private final Register register;
@@ -15,11 +14,6 @@ public class Output extends Component {
   public final InputPin clock;
 
   public final int size;
-
-  @NotNull
-  public static Output eightBit() {
-    return new Output(8);
-  }
 
   public Output(final int size) {
     this.size = size;
@@ -33,7 +27,6 @@ public class Output extends Component {
     }
   }
 
-  @NotNull
   public InputPin in(final int pin) {
     return this.register.in(pin);
   }

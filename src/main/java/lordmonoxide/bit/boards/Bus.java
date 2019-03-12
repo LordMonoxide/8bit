@@ -1,11 +1,12 @@
-package lordmonoxide.bit.components;
+package lordmonoxide.bit.boards;
 
+import lordmonoxide.bit.components.Transceiver;
+import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.Component;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
 import lordmonoxide.bit.parts.PinState;
 import lordmonoxide.bit.parts.Pins;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,9 +15,10 @@ public class Bus extends Component {
   private final Map<Transceiver, InputPin[]> in = new HashMap<>();
   private final OutputPin[] out;
 
+  private final int[] inputCounts;
+
   public final int size;
 
-  @NotNull
   public static Bus eightBit() {
     return new Bus(8);
   }
@@ -24,32 +26,41 @@ public class Bus extends Component {
   public Bus(final int size) {
     this.size = size;
     this.out = new OutputPin[size];
+    this.inputCounts = new int[size];
 
     for(int i = 0; i < size; i++) {
       this.out[i] = new OutputPin();
     }
   }
 
-  @NotNull
   public OutputPin out(final int pin) {
     return this.out[pin];
   }
 
-  public void connect(final Transceiver transceiver, final TransceiverSide side) {
+  public void connect(final Board board) {
     final InputPin[] in = new InputPin[this.size];
 
     for(int pin = 0; pin < this.size; pin++) {
       final int pin1 = pin;
       in[pin] = new InputPin(state -> {
-        if(state != PinState.DISCONNECTED) {
-          this.out[pin1].setState(state);
+        if(state == PinState.HIGH) {
+          this.inputCounts[pin1]++;
+        } else {
+          this.inputCounts[pin1]--;
         }
+
+        if(this.inputCounts[pin1] < 0) {
+          this.inputCounts[pin1] = 0;
+        }
+
+        this.out[pin1].setState(this.inputCounts[pin1] == 0 ? PinState.LOW : PinState.HIGH);
       });
-      in[pin].connectTo(transceiver.out(side, pin));
-      transceiver.in(side, pin).connectTo(this.out(pin));
+
+      in[pin].connectTo(board.getTransceiver().out(TransceiverSide.A, pin));
+      board.getTransceiver().in(TransceiverSide.A, pin).connectTo(this.out(pin));
     }
 
-    this.in.put(transceiver, in);
+    this.in.put(board.getTransceiver(), in);
   }
 
   @Override

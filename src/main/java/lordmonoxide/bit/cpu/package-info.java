@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package lordmonoxide.bit.parts;
+package lordmonoxide.bit.cpu;
 
 import lordmonoxide.bit.MethodsReturnNonnullByDefault;
 

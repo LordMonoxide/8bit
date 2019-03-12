@@ -1,15 +1,11 @@
 package lordmonoxide.bit.parts;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public class InputPin extends Pin {
   @Nullable
   private OutputPin connection;
-
-  @NotNull
   private final Consumer<PinState> onStateChange;
 
   public static InputPin aggregate(final InputPin... pins) {
@@ -20,11 +16,11 @@ public class InputPin extends Pin {
     this(state -> {});
   }
 
-  public InputPin(@NotNull final Consumer<PinState> onChangeState) {
+  public InputPin(final Consumer<PinState> onChangeState) {
     this.onStateChange = onChangeState;
   }
 
-  public InputPin connectTo(@NotNull final OutputPin pin) {
+  public InputPin connectTo(final OutputPin pin) {
     this.connection = pin;
     this.connection.addConnection(this);
     return this;
@@ -62,9 +58,9 @@ public class InputPin extends Pin {
     return this.getState() == PinState.DISCONNECTED;
   }
 
-  public InputPin setState(@NotNull final PinState state) {
+  public InputPin setState(final PinState state) {
     this.state = state;
-    this.onStateChange.accept(this.state);
+    this.onStateChange.accept(this.getState());
     return this;
   }
 
@@ -76,7 +72,7 @@ public class InputPin extends Pin {
     }
 
     @Override
-    public InputPin connectTo(final @NotNull OutputPin output) {
+    public InputPin connectTo(final OutputPin output) {
       for(final InputPin pin : this.pins) {
         pin.connectTo(output);
       }
@@ -103,12 +99,18 @@ public class InputPin extends Pin {
     }
 
     @Override
-    public @NotNull PinState getState() {
-      return this.pins[0].getState();
+    public PinState getState() {
+      for(final InputPin pin : this.pins) {
+        if(pin.isHigh()) {
+          return PinState.HIGH;
+        }
+      }
+
+      return PinState.LOW;
     }
 
     @Override
-    public InputPin setState(final @NotNull PinState state) {
+    public InputPin setState(final PinState state) {
       for(final InputPin pin : this.pins) {
         pin.setState(state);
       }

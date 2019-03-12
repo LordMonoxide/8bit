@@ -1,1 +1,7 @@
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 package lordmonoxide.bit.components;
+
+import lordmonoxide.bit.MethodsReturnNonnullByDefault;
+
+import javax.annotation.ParametersAreNonnullByDefault;
