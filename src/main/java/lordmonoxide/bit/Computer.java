@@ -80,10 +80,8 @@ public class Computer {
 
     // CPU SETUP
     registerA.input.connectTo(cpu.aIn);
-    registerA.output.connectTo(cpu.aOut);
     registerA.enable.connectTo(cpu.aEnable);
     registerB.input.connectTo(cpu.bIn);
-    registerB.output.connectTo(cpu.bOut);
     registerB.enable.connectTo(cpu.bEnable);
     alu.enable.connectTo(cpu.aluEnable);
     address.input.connectTo(cpu.addressIn);
@@ -95,11 +93,9 @@ public class Computer {
     ram.output.connectTo(cpu.ramOut);
     ram.enable.connectTo(cpu.ramEnable);
     counter.input.connectTo(cpu.countIn);
-    counter.output.connectTo(cpu.countOut);
     counter.enable.connectTo(cpu.countEnable);
     counter.count.connectTo(cpu.countCount);
     instruction.input.connectTo(cpu.instructionIn);
-    instruction.output.connectTo(cpu.instructionOut);
     instruction.enable.connectTo(cpu.instructionEnable);
     output.input.connectTo(cpu.outIn);
     output.enable.connectTo(cpu.outEnable);
@@ -120,13 +116,6 @@ public class Computer {
       System.out.println("CLOCK -----------");
       clock.out.setHigh();
       clock.out.setLow();
-
-      System.out.println(counter);
-      System.out.println(instruction);
-      System.out.println(registerA);
-      System.out.println(address);
-      System.out.println(ram);
-      System.out.println(bus);
       Thread.sleep(2000);
     } while(true);
 

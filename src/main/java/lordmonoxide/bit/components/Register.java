@@ -49,8 +49,6 @@ public class Register extends Component {
           throw new FloatingPinException("Register floating input pin " + pin);
         }
 
-        System.out.println("Setting pin " + pin + " to " + this.in[pin].getState());
-
         this.out[pin].setState(this.in[pin].getState());
       }
     }

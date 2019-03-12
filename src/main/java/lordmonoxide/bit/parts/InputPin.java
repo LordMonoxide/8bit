@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 public class InputPin extends Pin {
   @Nullable
   private OutputPin connection;
+
   private final Consumer<PinState> onStateChange;
 
   public static InputPin aggregate(final InputPin... pins) {
@@ -13,37 +14,49 @@ public class InputPin extends Pin {
   }
 
   public InputPin() {
-    this(state -> {});
+    this(pin -> { });
   }
 
-  public InputPin(final Consumer<PinState> onChangeState) {
-    this.onStateChange = onChangeState;
+  public InputPin(final Consumer<PinState> onStateChange) {
+    this.onStateChange = onStateChange;
   }
 
   public InputPin connectTo(final OutputPin pin) {
+    final PinState oldState = this.getState();
+
     this.connection = pin;
-    this.connection.addConnection(this);
+    pin.onStateChange(this, this.onStateChange);
+
+    if(oldState != this.getState()) {
+      //this.onStateChange.accept(this.getState());
+    }
+
     return this;
   }
 
   public InputPin disconnect() {
-    this.setState(PinState.DISCONNECTED);
+    final PinState oldState = this.getState();
 
-    if(this.connection == null) {
-      return this;
+    if(this.connection != null) {
+      this.connection.removeOnStateChange(this);
     }
 
-    this.connection.removeConnection(this);
     this.connection = null;
+
+    if(oldState != this.getState()) {
+      this.onStateChange.accept(this.getState());
+    }
+
     return this;
   }
 
-  public InputPin setHigh() {
-    return this.setState(PinState.HIGH);
-  }
+  @Override
+  public PinState getState() {
+    if(this.connection == null) {
+      return PinState.DISCONNECTED;
+    }
 
-  public InputPin setLow() {
-    return this.setState(PinState.LOW);
+    return this.connection.getState();
   }
 
   public boolean isHigh() {
@@ -58,10 +71,9 @@ public class InputPin extends Pin {
     return this.getState() == PinState.DISCONNECTED;
   }
 
-  public InputPin setState(final PinState state) {
-    this.state = state;
-    this.onStateChange.accept(this.getState());
-    return this;
+  @Override
+  public String toString() {
+    return "Input pin [" + this.getState() + ']';
   }
 
   public static final class AggregateInputPin extends InputPin {
@@ -81,24 +93,6 @@ public class InputPin extends Pin {
     }
 
     @Override
-    public InputPin setHigh() {
-      for(final InputPin pin : this.pins) {
-        pin.setHigh();
-      }
-
-      return this;
-    }
-
-    @Override
-    public InputPin setLow() {
-      for(final InputPin pin : this.pins) {
-        pin.setLow();
-      }
-
-      return this;
-    }
-
-    @Override
     public PinState getState() {
       for(final InputPin pin : this.pins) {
         if(pin.isHigh()) {
@@ -107,15 +101,6 @@ public class InputPin extends Pin {
       }
 
       return PinState.LOW;
-    }
-
-    @Override
-    public InputPin setState(final PinState state) {
-      for(final InputPin pin : this.pins) {
-        pin.setState(state);
-      }
-
-      return this;
     }
   }
 }

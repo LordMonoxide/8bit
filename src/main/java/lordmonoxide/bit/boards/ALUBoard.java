@@ -3,6 +3,7 @@ package lordmonoxide.bit.boards;
 import lordmonoxide.bit.components.ALU;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputPin;
+import lordmonoxide.bit.parts.Pins;
 
 public class ALUBoard extends Board {
   public final String name;
@@ -16,10 +17,10 @@ public class ALUBoard extends Board {
     this.name = name;
 
     this.alu = new ALU(size);
-    this.alu.carryIn.setLow();
+    this.alu.carryIn.connectTo(Pins.GND);
     this.enable = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " EN " + state)), this.getTransceiver().enable);
 
-    this.getTransceiver().dir.setLow();
+    this.getTransceiver().dir.connectTo(Pins.GND);
 
     for(int i = 0; i < this.size; i++ ) {
       this.getTransceiver().in(TransceiverSide.B, i).connectTo(this.alu.out(i));

@@ -1,6 +1,9 @@
 package lordmonoxide.bit.parts;
 
 public final class Pins {
+  public static final OutputPin VCC = new OutputPin().setHigh();
+  public static final OutputPin GND = new OutputPin().setLow();
+
   private Pins() { }
 
   public static String toBits(final Pin... pins) {
@@ -19,7 +22,7 @@ public final class Pins {
     int output = 0;
 
     for(int i = 0; i < pins.length; i++) {
-      output |= pins[i].state.toInt() << i;
+      output |= pins[i].getState().toInt() << i;
     }
 
     return output;

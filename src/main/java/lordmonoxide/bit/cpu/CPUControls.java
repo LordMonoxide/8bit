@@ -6,10 +6,8 @@ import java.util.function.Function;
 
 public enum CPUControls {
   A_IN(cpu -> cpu.aIn),
-  A_OUT(cpu -> cpu.aOut),
   A_EN(cpu -> cpu.aEnable),
   B_IN(cpu -> cpu.bIn),
-  B_OUT(cpu -> cpu.bOut),
   B_EN(cpu -> cpu.bEnable),
   ALU_EN(cpu -> cpu.aluEnable),
   ADD_IN(cpu -> cpu.addressIn),
@@ -21,11 +19,9 @@ public enum CPUControls {
   RAM_OUT(cpu -> cpu.ramOut),
   RAM_EN(cpu -> cpu.ramEnable),
   CNT_IN(cpu -> cpu.countIn),
-  CNT_OUT(cpu -> cpu.countOut),
   CNT_EN(cpu -> cpu.countEnable),
   CNT_CNT(cpu -> cpu.countCount),
   INST_IN(cpu -> cpu.instructionIn),
-  INST_OUT(cpu -> cpu.instructionOut),
   INST_EN(cpu -> cpu.instructionEnable),
   OUT_IN(cpu -> cpu.outIn),
   OUT_EN(cpu -> cpu.outEnable),

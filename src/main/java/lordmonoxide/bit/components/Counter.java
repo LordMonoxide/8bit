@@ -52,13 +52,13 @@ public class Counter extends Component {
     if(state == PinState.HIGH) {
       if(this.count.isHigh()) {
         this.value++;
+        this.updateOutput();
       }
 
       if(this.load.isHigh()) {
         this.value = Pins.toInt(this.in);
+        this.updateOutput();
       }
-
-      this.updateOutput();
     }
   }
 

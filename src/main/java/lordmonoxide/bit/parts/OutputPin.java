@@ -1,20 +1,23 @@
 package lordmonoxide.bit.parts;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class OutputPin extends Pin {
-  private final List<InputPin> connections = new ArrayList<>();
+  private final Map<InputPin, Consumer<PinState>> onStateChange = new HashMap<>();
 
+  private PinState state = PinState.LOW;
   private boolean disabled;
 
-  void addConnection(final InputPin pin) {
-    this.connections.add(pin);
-    pin.setState(this.getState());
+  public OutputPin onStateChange(final InputPin pin, final Consumer<PinState> onStateChange) {
+    this.onStateChange.put(pin, onStateChange);
+    return this;
   }
 
-  void removeConnection(final InputPin pin) {
-    this.connections.remove(pin);
+  public OutputPin removeOnStateChange(final InputPin pin) {
+    this.onStateChange.remove(pin);
+    return this;
   }
 
   public OutputPin setHigh() {
@@ -27,18 +30,18 @@ public class OutputPin extends Pin {
 
   @Override
   public PinState getState() {
-    return this.disabled ? PinState.DISCONNECTED : super.getState();
+    return this.disabled ? PinState.DISCONNECTED : this.state;
   }
 
   public OutputPin disable() {
     this.disabled = true;
-    this.connections.forEach(pin -> pin.setState(PinState.DISCONNECTED));
+    this.onStateChange.forEach((pin, callback) -> callback.accept(this.getState()));
     return this;
   }
 
   public OutputPin enable() {
     this.disabled = false;
-    this.connections.forEach(pin -> pin.setState(this.getState()));
+    this.onStateChange.forEach((pin, callback) -> callback.accept(this.getState()));
     return this;
   }
 
@@ -46,9 +49,14 @@ public class OutputPin extends Pin {
     this.state = state;
 
     if(!this.disabled) {
-      this.connections.forEach(pin -> pin.setState(this.getState()));
+      this.onStateChange.forEach((pin, callback) -> callback.accept(this.getState()));
     }
 
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return "Output pin [" + this.getState() + ']';
   }
 }

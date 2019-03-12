@@ -3,6 +3,7 @@ package lordmonoxide.bit.boards;
 import lordmonoxide.bit.components.Output;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputPin;
+import lordmonoxide.bit.parts.Pins;
 
 public class OutputBoard extends Board {
   public final String name;
@@ -22,7 +23,7 @@ public class OutputBoard extends Board {
     this.input = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " IN " + state)), this.output.load);
     this.clock = InputPin.aggregate(new InputPin(state -> System.out.println(this.name + " CLK " + state)), this.output.clock);
 
-    this.getTransceiver().dir.setHigh();
+    this.getTransceiver().dir.connectTo(Pins.VCC);
 
     for(int pin = 0; pin < this.size; pin++ ) {
       this.output.in(pin).connectTo(this.getTransceiver().out(TransceiverSide.B, pin));

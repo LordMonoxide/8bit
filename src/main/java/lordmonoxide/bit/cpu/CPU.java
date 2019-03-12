@@ -8,10 +8,8 @@ import lordmonoxide.bit.parts.Pins;
 
 public class CPU extends Component {
   public final OutputPin aIn = new OutputPin();
-  public final OutputPin aOut = new OutputPin();
   public final OutputPin aEnable = new OutputPin();
   public final OutputPin bIn = new OutputPin();
-  public final OutputPin bOut = new OutputPin();
   public final OutputPin bEnable = new OutputPin();
   public final OutputPin aluEnable = new OutputPin();
   public final OutputPin addressIn = new OutputPin();
@@ -23,11 +21,9 @@ public class CPU extends Component {
   public final OutputPin ramOut = new OutputPin();
   public final OutputPin ramEnable = new OutputPin();
   public final OutputPin countIn = new OutputPin();
-  public final OutputPin countOut = new OutputPin();
   public final OutputPin countEnable = new OutputPin();
   public final OutputPin countCount = new OutputPin();
   public final OutputPin instructionIn = new OutputPin();
-  public final OutputPin instructionOut = new OutputPin();
   public final OutputPin instructionEnable = new OutputPin();
   public final OutputPin outIn = new OutputPin();
   public final OutputPin outEnable = new OutputPin();

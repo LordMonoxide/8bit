@@ -7,6 +7,7 @@ import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
 import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.Pins;
 
 public class DisablableRegisterBoard extends Board {
   public final String name;
@@ -33,7 +34,7 @@ public class DisablableRegisterBoard extends Board {
       System.out.println(this.name + " IN " + state);
 
       if(state == PinState.HIGH) {
-        this.getTransceiver().dir.setHigh();
+        this.getTransceiver().dir.connectTo(Pins.VCC);
       }
     }));
 
@@ -41,7 +42,7 @@ public class DisablableRegisterBoard extends Board {
       System.out.println(this.name + " OUT " + state);
 
       if(state == PinState.HIGH) {
-        this.getTransceiver().dir.setLow();
+        this.getTransceiver().dir.connectTo(Pins.GND);
       }
     });
 

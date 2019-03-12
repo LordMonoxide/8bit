@@ -4,6 +4,7 @@ import lordmonoxide.bit.components.RAM;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.Pins;
 
 public class RAMBoard extends Board {
   public final String name;
@@ -27,7 +28,7 @@ public class RAMBoard extends Board {
       System.out.println(this.name + " IN " + state);
 
       if(state == PinState.HIGH) {
-        this.getTransceiver().dir.setHigh();
+        this.getTransceiver().dir.connectTo(Pins.VCC);
       }
     }));
 
@@ -35,7 +36,7 @@ public class RAMBoard extends Board {
       System.out.println(this.name + " OUT " + state);
 
       if(state == PinState.HIGH) {
-        this.getTransceiver().dir.setLow();
+        this.getTransceiver().dir.connectTo(Pins.GND);
       }
     });
 

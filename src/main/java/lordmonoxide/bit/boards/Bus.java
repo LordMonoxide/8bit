@@ -15,7 +15,7 @@ public class Bus extends Component {
   private final Map<Transceiver, InputPin[]> in = new HashMap<>();
   private final OutputPin[] out;
 
-  private final int[] inputCounts;
+  private final boolean[] inputs;
 
   public final int size;
 
@@ -26,7 +26,7 @@ public class Bus extends Component {
   public Bus(final int size) {
     this.size = size;
     this.out = new OutputPin[size];
-    this.inputCounts = new int[size];
+    this.inputs = new boolean[size];
 
     for(int i = 0; i < size; i++) {
       this.out[i] = new OutputPin();
@@ -42,25 +42,27 @@ public class Bus extends Component {
 
     for(int pin = 0; pin < this.size; pin++) {
       final int pin1 = pin;
-      in[pin] = new InputPin(state -> {
-        if(state == PinState.HIGH) {
-          this.inputCounts[pin1]++;
-        } else {
-          this.inputCounts[pin1]--;
-        }
-
-        if(this.inputCounts[pin1] < 0) {
-          this.inputCounts[pin1] = 0;
-        }
-
-        this.out[pin1].setState(this.inputCounts[pin1] == 0 ? PinState.LOW : PinState.HIGH);
-      });
-
+      in[pin] = new InputPin(state -> this.updateOutput(pin1));
       in[pin].connectTo(board.getTransceiver().out(TransceiverSide.A, pin));
       board.getTransceiver().in(TransceiverSide.A, pin).connectTo(this.out(pin));
     }
 
     this.in.put(board.getTransceiver(), in);
+  }
+
+  private void updateOutput(final int pin) {
+    PinState state = PinState.LOW;
+
+    for(final InputPin[] entry : this.in.values()) {
+      if(entry[pin].isHigh()) {
+        state = PinState.HIGH;
+        break;
+      }
+    }
+
+    if(state != this.out[pin].getState()) {
+      this.out[pin].setState(state);
+    }
   }
 
   @Override

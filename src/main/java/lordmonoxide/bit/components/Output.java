@@ -36,8 +36,8 @@ public class Output extends Component {
   }
 
   private void onClock(final PinState state) {
-    if(state == PinState.HIGH) {
-      System.out.println(Pins.toInt(this.in));
+    if(state == PinState.HIGH && this.load.isHigh()) {
+      System.out.println("Output: " + Pins.toInt(this.in));
     }
   }
 }
