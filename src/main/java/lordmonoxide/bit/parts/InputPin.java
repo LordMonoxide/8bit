@@ -22,30 +22,8 @@ public class InputPin extends Pin {
   }
 
   public InputPin connectTo(final OutputPin pin) {
-    final PinState oldState = this.getState();
-
     this.connection = pin;
     pin.onStateChange(this, this.onStateChange);
-
-    if(oldState != this.getState()) {
-      //this.onStateChange.accept(this.getState());
-    }
-
-    return this;
-  }
-
-  public InputPin disconnect() {
-    final PinState oldState = this.getState();
-
-    if(this.connection != null) {
-      this.connection.removeOnStateChange(this);
-    }
-
-    this.connection = null;
-
-    if(oldState != this.getState()) {
-      this.onStateChange.accept(this.getState());
-    }
 
     return this;
   }

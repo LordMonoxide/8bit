@@ -10,9 +10,14 @@ import lordmonoxide.bit.boards.RegisterBoard;
 import lordmonoxide.bit.components.Clock;
 import lordmonoxide.bit.cpu.CPU;
 import lordmonoxide.bit.cpu.CPUInstructions;
+import lordmonoxide.bit.parts.InputPin;
+import lordmonoxide.bit.parts.OutputPin;
+import lordmonoxide.bit.parts.PinState;
 
 public class Computer {
   public static void main(final String[] args) {
+    OutputPin.disableStateCallbacks();
+
     final Bus bus = Bus.eightBit();
 
     // CLOCK SETUP
@@ -104,12 +109,26 @@ public class Computer {
       cpu.instruction(pin).connectTo(instruction.out(pin));
     }
 
+    new InputPin(state -> {
+      if(state == PinState.HIGH) {
+        System.out.println(registerA);
+        System.out.println(registerB);
+        System.out.println(alu);
+        System.out.println(bus);
+      }
+    }).connectTo(clock.out);
+
+    OutputPin.enableStateCallbacks();
+
     // PROGRAM
     ram.set(0, CPUInstructions.LDA.ordinal());
-    ram.set(1, 255);
-    ram.set(2, CPUInstructions.OUT.ordinal());
-    ram.set(3, CPUInstructions.HALT.ordinal());
-    ram.set(255, 123);
+    ram.set(1, 254);
+    ram.set(2, CPUInstructions.ADD.ordinal());
+    ram.set(3, 255);
+    ram.set(4, CPUInstructions.OUT.ordinal());
+    ram.set(5, CPUInstructions.HALT.ordinal());
+    ram.set(254, 0b01000000);
+    ram.set(255, 0b00000010);
 
     System.out.println("STARTING");
 

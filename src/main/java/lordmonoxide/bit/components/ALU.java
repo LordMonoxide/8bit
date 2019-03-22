@@ -53,15 +53,7 @@ public class ALU extends Component {
 
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder("ALU: carry in: ").append(this.carryIn.getState()).append('\n');
-
-    for(int i = this.size - 1; i >= 0; i--) {
-      builder.append(this.a[i].getState()).append(" + ").append(this.b[i].getState()).append(" = ").append(this.out[i].getState()).append('\n');
-    }
-
-    builder.append("Carry out: ").append(this.carryOut.getState());
-
-    return builder.toString();
+    return "ALU: [" + Pins.toBits(this.a) + " + " + Pins.toBits(this.b) + " + " + Pins.toBits(this.carryIn) + " = " + Pins.toBits(this.out) + ']';
   }
 
   public String toBits() {

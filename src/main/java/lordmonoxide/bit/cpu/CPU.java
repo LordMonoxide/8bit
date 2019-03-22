@@ -53,7 +53,7 @@ public class CPU extends Component {
 
     final CPUInstructions instruction = CPUInstructions.values()[Pins.toInt(this.instruction)];
 
-    //System.out.println(instruction + " " + this.step);
+    System.out.println(instruction + " " + this.step);
 
     CPUControls.reset(this);
     instruction.activate(this, this.step);

@@ -34,4 +34,9 @@ public class ALUBoard extends Board {
   public InputPin b(final int pin) {
     return this.alu.b(pin);
   }
+
+  @Override
+  public String toString() {
+    return this.name + ": " + this.alu;
+  }
 }

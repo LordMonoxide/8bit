@@ -11,7 +11,7 @@ public enum CPUInstructions {
     .step(CPUControls.ADD_EN, CPUControls.ADD_IN, CPUControls.CNT_EN)
     .step(CPUControls.ADD_EN, CPUControls.ADD_IN, CPUControls.RAM_EN, CPUControls.CNT_CNT)
     .step(CPUControls.B_EN, CPUControls.B_IN, CPUControls.RAM_EN)
-    .step(CPUControls.ADD_EN, CPUControls.A_IN, CPUControls.ALU_EN)
+    .step(CPUControls.A_EN, CPUControls.A_IN, CPUControls.ALU_EN)
   ),
   OUT(op()
     .step(CPUControls.OUT_EN, CPUControls.OUT_IN, CPUControls.A_EN)
