@@ -1,5 +1,6 @@
 package lordmonoxide.bit.parts;
 
+import lordmonoxide.bit.ConnectionMismatchException;
 import lordmonoxide.bit.FloatingConnectionException;
 import lordmonoxide.bit.InvalidConnectionValueException;
 
@@ -17,6 +18,10 @@ public class OutputConnection extends Connection {
 
   public static void disableStateCallbacks() {
     enableStateCallbacks = false;
+  }
+
+  public static OutputConnection widen(final int size, final OutputConnection source) {
+    return new OutputWidenerConnection(size, source);
   }
 
   private final Map<InputConnection, Consumer<OptionalInt>> onStateChange = new LinkedHashMap<>();
@@ -90,5 +95,61 @@ public class OutputConnection extends Connection {
     }
 
     return "Output [" + this.getValue() + ']';
+  }
+
+  public static class OutputWidenerConnection extends OutputConnection {
+    private final OutputConnection source;
+
+    public OutputWidenerConnection(final int size, final OutputConnection source) {
+      super(size);
+
+      if(source.size >= size) {
+        throw new ConnectionMismatchException("Source size must be smaller than widened size");
+      }
+
+      this.source = source;
+    }
+
+    @Override
+    public OutputConnection onStateChange(final InputConnection connection, final Consumer<OptionalInt> onStateChange) {
+      return this.source.onStateChange(connection, onStateChange);
+    }
+
+    @Override
+    public OptionalInt getValue() {
+      if(this.source.getValue().isEmpty()) {
+        return OptionalInt.empty();
+      }
+
+      int value = 0;
+
+      for(int newBit = 0; newBit < this.size; newBit++) {
+        final int oldBit = newBit % this.source.size;
+
+        value |= ((this.source.value >> oldBit) & 0b1) << newBit;
+      }
+
+      return OptionalInt.of(value);
+    }
+
+    @Override
+    public OutputConnection disable() {
+      throw new RuntimeException("Can't disable widened pin");
+    }
+
+    @Override
+    public OutputConnection enable() {
+      throw new RuntimeException("Can't enable widened pin");
+    }
+
+    @Override
+    public OutputConnection setValue(final int value) {
+      throw new RuntimeException("Can't set value of widened pin");
+    }
+
+    @Override
+    public String toString() {
+      return super.toString();
+    }
   }
 }

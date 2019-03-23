@@ -27,7 +27,7 @@ public class InputConnection extends Connection {
   }
 
   public InputConnection connectTo(final OutputConnection connection) {
-    if(this.size < connection.size) {
+    if(this.size != connection.size) {
       throw new ConnectionMismatchException("Attempted to connect " + this.size + " pin input to " + connection.size + " output");
     }
 
