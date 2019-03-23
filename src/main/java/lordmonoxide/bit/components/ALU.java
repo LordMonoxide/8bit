@@ -3,10 +3,10 @@ package lordmonoxide.bit.components;
 import lordmonoxide.bit.parts.Component;
 import lordmonoxide.bit.parts.InputPin;
 import lordmonoxide.bit.parts.OutputPin;
+import lordmonoxide.bit.parts.PinState;
 import lordmonoxide.bit.parts.Pins;
 
 public class ALU extends Component {
-  private final FullAdder[] adders;
   private final InputPin[] a;
   private final InputPin[] b;
   private final OutputPin[] out;
@@ -15,28 +15,24 @@ public class ALU extends Component {
   public final OutputPin carryOut;
 
   public final int size;
+  private final int max;
 
   public ALU(final int size) {
     this.size = size;
+    this.max = (int)Math.pow(2, size);
 
-    this.adders = new FullAdder[size];
     this.a = new InputPin[size];
     this.b = new InputPin[size];
     this.out = new OutputPin[size];
 
     for(int i = 0; i < size; i++) {
-      this.adders[i] = new FullAdder();
-      this.a[i] = this.adders[i].a;
-      this.b[i] = this.adders[i].b;
-      this.out[i] = this.adders[i].out;
-
-      if(i > 0) {
-        this.adders[i].carryIn.connectTo(this.adders[i - 1].carryOut);
-      }
+      this.a[i] = new InputPin(this::onInputChanged);
+      this.b[i] = new InputPin(this::onInputChanged);
+      this.out[i] = new OutputPin();
     }
 
-    this.carryIn = this.adders[0].carryIn;
-    this.carryOut = this.adders[size - 1].carryOut;
+    this.carryIn = new InputPin(this::onInputChanged);
+    this.carryOut = new OutputPin();
   }
 
   public InputPin a(final int pin) {
@@ -49,6 +45,22 @@ public class ALU extends Component {
 
   public OutputPin out(final int pin) {
     return this.out[pin];
+  }
+
+  private void onInputChanged(final PinState state) {
+    final int sum = Pins.toInt(this.a) + Pins.toInt(this.b) + Pins.toInt(this.carryIn);
+
+    if(sum > this.max) {
+      this.carryOut.setHigh();
+    } else {
+      this.carryOut.setLow();
+    }
+
+    final int output = sum % this.max;
+
+    for(int pin = 0; pin < this.size; pin++) {
+      this.out[pin].setState(Pins.fromInt(output, pin));
+    }
   }
 
   @Override

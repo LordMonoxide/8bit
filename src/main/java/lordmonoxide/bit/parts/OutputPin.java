@@ -1,6 +1,6 @@
 package lordmonoxide.bit.parts;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -15,7 +15,7 @@ public class OutputPin extends Pin {
     enableStateCallbacks = false;
   }
 
-  private final Map<InputPin, Consumer<PinState>> onStateChange = new HashMap<>();
+  private final Map<InputPin, Consumer<PinState>> onStateChange = new LinkedHashMap<>();
 
   private PinState state = PinState.LOW;
   private boolean disabled;
