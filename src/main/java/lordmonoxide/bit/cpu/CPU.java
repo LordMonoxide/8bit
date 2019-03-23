@@ -1,59 +1,60 @@
 package lordmonoxide.bit.cpu;
 
+import lordmonoxide.bit.FloatingConnectionException;
 import lordmonoxide.bit.parts.Component;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
-import lordmonoxide.bit.parts.Pins;
+import lordmonoxide.bit.parts.InputConnection;
+import lordmonoxide.bit.parts.OutputConnection;
+
+import java.util.OptionalInt;
 
 public class CPU extends Component {
-  public final OutputPin halt = new OutputPin();
-  public final OutputPin aIn = new OutputPin();
-  public final OutputPin aEnable = new OutputPin();
-  public final OutputPin bIn = new OutputPin();
-  public final OutputPin bEnable = new OutputPin();
-  public final OutputPin aluEnable = new OutputPin();
-  public final OutputPin addressIn = new OutputPin();
-  public final OutputPin addressEnable = new OutputPin();
-  public final OutputPin bankIn = new OutputPin();
-  public final OutputPin bankEnable = new OutputPin();
-  public final OutputPin bankDisable = new OutputPin();
-  public final OutputPin ramIn = new OutputPin();
-  public final OutputPin ramEnable = new OutputPin();
-  public final OutputPin countIn = new OutputPin();
-  public final OutputPin countEnable = new OutputPin();
-  public final OutputPin countCount = new OutputPin();
-  public final OutputPin instructionIn = new OutputPin();
-  public final OutputPin instructionEnable = new OutputPin();
-  public final OutputPin outIn = new OutputPin();
-  public final OutputPin outEnable = new OutputPin();
+  public final OutputConnection halt = new OutputConnection(1);
+  public final OutputConnection aIn = new OutputConnection(1);
+  public final OutputConnection aEnable = new OutputConnection(1);
+  public final OutputConnection bIn = new OutputConnection(1);
+  public final OutputConnection bEnable = new OutputConnection(1);
+  public final OutputConnection aluEnable = new OutputConnection(1);
+  public final OutputConnection addressIn = new OutputConnection(1);
+  public final OutputConnection addressEnable = new OutputConnection(1);
+  public final OutputConnection bankIn = new OutputConnection(1);
+  public final OutputConnection bankEnable = new OutputConnection(1);
+  public final OutputConnection bankDisable = new OutputConnection(1);
+  public final OutputConnection ramIn = new OutputConnection(1);
+  public final OutputConnection ramEnable = new OutputConnection(1);
+  public final OutputConnection countIn = new OutputConnection(1);
+  public final OutputConnection countEnable = new OutputConnection(1);
+  public final OutputConnection countCount = new OutputConnection(1);
+  public final OutputConnection instructionIn = new OutputConnection(1);
+  public final OutputConnection instructionEnable = new OutputConnection(1);
+  public final OutputConnection outIn = new OutputConnection(1);
+  public final OutputConnection outEnable = new OutputConnection(1);
 
-  private final InputPin[] instruction;
+  public final InputConnection instruction;
 
   private int step;
 
-  public final InputPin clock = new InputPin(this::onClock);
+  public final InputConnection clock = new InputConnection(1, this::onClock);
 
   public CPU(final int size) {
-    this.instruction = new InputPin[size];
+    this.instruction = new InputConnection(size);
+  }
 
-    for(int pin = 0; pin < size; pin++) {
-      this.instruction[pin] = new InputPin();
+  private void onClock(final OptionalInt value) {
+    if(value.isEmpty()) {
+      throw new FloatingConnectionException("CPU clock connection is floating");
     }
-  }
 
-  public InputPin instruction(final int pin) {
-    return this.instruction[pin];
-  }
-
-  private void onClock(final PinState state) {
-    if(state != PinState.HIGH) {
+    if(value.getAsInt() == 0) {
       return;
     }
 
-    final CPUInstructions instruction = CPUInstructions.values()[Pins.toInt(this.instruction)];
+    if(this.instruction.getValue().isEmpty()) {
+      throw new FloatingConnectionException("CPU instruction connection is floating");
+    }
 
-    System.out.println(instruction + " " + this.step);
+    final CPUInstructions instruction = CPUInstructions.values()[this.instruction.getValue().getAsInt()];
+
+//    System.out.println(instruction + " " + this.step);
 
     CPUControls.reset(this);
     instruction.activate(this, this.step);

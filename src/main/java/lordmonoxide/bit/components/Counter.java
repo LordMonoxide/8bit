@@ -1,19 +1,20 @@
 package lordmonoxide.bit.components;
 
-import lordmonoxide.bit.FloatingPinException;
+import lordmonoxide.bit.FloatingConnectionException;
 import lordmonoxide.bit.parts.Component;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.InputConnection;
+import lordmonoxide.bit.parts.OutputConnection;
 import lordmonoxide.bit.parts.Pins;
 
-public class Counter extends Component {
-  private final InputPin[] in;
-  private final OutputPin[] out;
+import java.util.OptionalInt;
 
-  public final InputPin load = new InputPin();
-  public final InputPin clock = new InputPin(this::onClock);
-  public final InputPin count = new InputPin();
+public class Counter extends Component {
+  public final InputConnection in;
+  public final OutputConnection out;
+
+  public final InputConnection load = new InputConnection(1);
+  public final InputConnection clock = new InputConnection(1, this::onClock);
+  public final InputConnection count = new InputConnection(1);
 
   public final int size;
 
@@ -22,21 +23,8 @@ public class Counter extends Component {
   public Counter(final int size) {
     this.size = size;
 
-    this.in = new InputPin[size];
-    this.out = new OutputPin[size];
-
-    for(int i = 0; i < size; i++) {
-      this.in[i] = new InputPin();
-      this.out[i] = new OutputPin();
-    }
-  }
-
-  public InputPin in(final int pin) {
-    return this.in[pin];
-  }
-
-  public OutputPin out(final int pin) {
-    return this.out[pin];
+    this.in = new InputConnection(size);
+    this.out = new OutputConnection(size).setValue(0);
   }
 
   public void clear() {
@@ -44,41 +32,31 @@ public class Counter extends Component {
     this.updateOutput();
   }
 
-  private void onClock(final PinState state) {
-    if(this.count.isDisconnected()) {
-      throw new FloatingPinException();
-    }
-
-    if(state == PinState.HIGH) {
-      if(this.count.isHigh()) {
+  private void onClock(final OptionalInt value) {
+    if(value.getAsInt() != 0) {
+      if(this.count.getValue().orElseThrow(() -> new FloatingConnectionException("Counter count is floating")) != 0) {
         this.value++;
         this.updateOutput();
       }
 
-      if(this.load.isHigh()) {
-        this.value = Pins.toInt(this.in);
+      if(this.load.getValue().orElseThrow(() -> new FloatingConnectionException("Counter load is floating")) != 0) {
+        if(this.in.getValue().isEmpty()) {
+          throw new FloatingConnectionException("Counter inis floating");
+        }
+
+        this.value = this.in.getValue().orElseThrow(() -> new FloatingConnectionException("Counter in is floating"));
         this.updateOutput();
       }
     }
   }
 
   private void updateOutput() {
-    for(int i = 0; i < this.size; i++) {
-      this.out(i).setState(Pins.fromInt(this.value, i));
-    }
+    this.out.setValue(this.value);
   }
 
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder("Counter [");
-
-    for(int i = this.size - 1; i > 0; i--) {
-      builder.append(this.out(i).getState()).append(", ");
-    }
-
-    builder.append(this.out(0).getState()).append(']');
-
-    return builder.toString();
+    return "Counter [" + this.out.getValue() + ']';
   }
 
   public String toBits() {
@@ -86,6 +64,6 @@ public class Counter extends Component {
   }
 
   public int toInt() {
-    return Pins.toInt(this.out);
+    return this.out.getValue().getAsInt();
   }
 }

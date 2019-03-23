@@ -2,16 +2,16 @@ package lordmonoxide.bit.boards;
 
 import lordmonoxide.bit.components.Counter;
 import lordmonoxide.bit.components.TransceiverSide;
-import lordmonoxide.bit.parts.InputPin;
+import lordmonoxide.bit.parts.InputConnection;
 
 public class CounterBoard extends Board {
   public final String name;
   private final Counter counter;
 
-  public final InputPin enable;
-  public final InputPin clock;
-  public final InputPin input;
-  public final InputPin count;
+  public final InputConnection enable;
+  public final InputConnection clock;
+  public final InputConnection input;
+  public final InputConnection count;
 
   public CounterBoard(final String name, final int size) {
     super(size);
@@ -22,12 +22,10 @@ public class CounterBoard extends Board {
     this.enable = this.getTransceiver().enable;
     this.clock = this.counter.clock;
     this.count = this.counter.count;
-    this.input = InputPin.aggregate(this.counter.load, this.getTransceiver().dir);
+    this.input = InputConnection.aggregate(1, this.counter.load, this.getTransceiver().dir);
 
-    for(int i = 0; i < this.size; i++) {
-      this.getTransceiver().in(TransceiverSide.B, i).connectTo(this.counter.out(i));
-      this.counter.in(i).connectTo(this.getTransceiver().out(TransceiverSide.B, i));
-    }
+    this.getTransceiver().in(TransceiverSide.B).connectTo(this.counter.out);
+    this.counter.in.connectTo(this.getTransceiver().out(TransceiverSide.B));
   }
 
   public void clear() {

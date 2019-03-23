@@ -1,18 +1,19 @@
 package lordmonoxide.bit.components;
 
 import lordmonoxide.bit.parts.Component;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.InputConnection;
+import lordmonoxide.bit.parts.OutputConnection;
 import lordmonoxide.bit.parts.Pins;
 
-public class ALU extends Component {
-  private final InputPin[] a;
-  private final InputPin[] b;
-  private final OutputPin[] out;
+import java.util.OptionalInt;
 
-  public final InputPin carryIn;
-  public final OutputPin carryOut;
+public class ALU extends Component {
+  public final InputConnection a;
+  public final InputConnection b;
+  public final OutputConnection out;
+
+  public final InputConnection carryIn;
+  public final OutputConnection carryOut;
 
   public final int size;
   private final int max;
@@ -21,46 +22,28 @@ public class ALU extends Component {
     this.size = size;
     this.max = (int)Math.pow(2, size);
 
-    this.a = new InputPin[size];
-    this.b = new InputPin[size];
-    this.out = new OutputPin[size];
+    this.a = new InputConnection(size, this::onInputChanged);
+    this.b = new InputConnection(size, this::onInputChanged);
+    this.out = new OutputConnection(size).setValue(0);
 
-    for(int i = 0; i < size; i++) {
-      this.a[i] = new InputPin(this::onInputChanged);
-      this.b[i] = new InputPin(this::onInputChanged);
-      this.out[i] = new OutputPin();
+    this.carryIn = new InputConnection(1, this::onInputChanged);
+    this.carryOut = new OutputConnection(1).setValue(0);
+  }
+
+  private void onInputChanged(final OptionalInt value) {
+    if(this.a.getValue().isEmpty() || this.b.getValue().isEmpty() || this.carryIn.getValue().isEmpty()) {
+      return;
     }
 
-    this.carryIn = new InputPin(this::onInputChanged);
-    this.carryOut = new OutputPin();
-  }
-
-  public InputPin a(final int pin) {
-    return this.a[pin];
-  }
-
-  public InputPin b(final int pin) {
-    return this.b[pin];
-  }
-
-  public OutputPin out(final int pin) {
-    return this.out[pin];
-  }
-
-  private void onInputChanged(final PinState state) {
-    final int sum = Pins.toInt(this.a) + Pins.toInt(this.b) + Pins.toInt(this.carryIn);
+    final int sum = this.a.getValue().getAsInt() + this.b.getValue().getAsInt() + this.carryIn.getValue().getAsInt();
 
     if(sum > this.max) {
-      this.carryOut.setHigh();
+      this.carryOut.setValue(1);
     } else {
-      this.carryOut.setLow();
+      this.carryOut.setValue(0);
     }
 
-    final int output = sum % this.max;
-
-    for(int pin = 0; pin < this.size; pin++) {
-      this.out[pin].setState(Pins.fromInt(output, pin));
-    }
+    this.out.setValue(sum % this.max);
   }
 
   @Override
@@ -73,6 +56,6 @@ public class ALU extends Component {
   }
 
   public int toInt() {
-    return Pins.toInt(this.out);
+    return this.out.getValue().getAsInt();
   }
 }

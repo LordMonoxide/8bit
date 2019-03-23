@@ -2,16 +2,17 @@ package lordmonoxide.bit.boards;
 
 import lordmonoxide.bit.components.Register;
 import lordmonoxide.bit.components.TransceiverSide;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
+import lordmonoxide.bit.parts.InputConnection;
+import lordmonoxide.bit.parts.OutputConnection;
 
 public class RegisterBoard extends Board {
   public final String name;
   private final Register register;
 
-  public final InputPin enable;
-  public final InputPin clock;
-  public final InputPin input;
+  public final InputConnection enable;
+  public final InputConnection clock;
+  public final InputConnection input;
+  public final OutputConnection out;
 
   public RegisterBoard(final String name, final int size) {
     super(size);
@@ -21,16 +22,11 @@ public class RegisterBoard extends Board {
     this.register = new Register(size);
     this.enable = this.getTransceiver().enable;
     this.clock = this.register.clock;
-    this.input = InputPin.aggregate(this.register.load, this.getTransceiver().dir);
+    this.input = InputConnection.aggregate(1, this.register.load, this.getTransceiver().dir);
+    this.out = this.register.out;
 
-    for(int i = 0; i < this.size; i++) {
-      this.getTransceiver().in(TransceiverSide.B, i).connectTo(this.register.out(i));
-      this.register.in(i).connectTo(this.getTransceiver().out(TransceiverSide.B, i));
-    }
-  }
-
-  public OutputPin out(final int pin) {
-    return this.register.out(pin);
+    this.getTransceiver().in(TransceiverSide.B).connectTo(this.register.out);
+    this.register.in.connectTo(this.getTransceiver().out(TransceiverSide.B));
   }
 
   public void clear() {

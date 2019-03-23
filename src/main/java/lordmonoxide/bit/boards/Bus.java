@@ -3,17 +3,16 @@ package lordmonoxide.bit.boards;
 import lordmonoxide.bit.components.Transceiver;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.Component;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.InputConnection;
+import lordmonoxide.bit.parts.OutputConnection;
 import lordmonoxide.bit.parts.Pins;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Bus extends Component {
-  private final Map<Transceiver, InputPin[]> in = new HashMap<>();
-  private final OutputPin[] out;
+  private final Map<Transceiver, InputConnection> in = new HashMap<>();
+  public final OutputConnection out;
 
   public final int size;
 
@@ -23,42 +22,29 @@ public class Bus extends Component {
 
   public Bus(final int size) {
     this.size = size;
-    this.out = new OutputPin[size];
-
-    for(int i = 0; i < size; i++) {
-      this.out[i] = new OutputPin();
-    }
-  }
-
-  public OutputPin out(final int pin) {
-    return this.out[pin];
+    this.out = new OutputConnection(size);
   }
 
   public void connect(final Board board) {
-    final InputPin[] in = new InputPin[this.size];
-
-    for(int pin = 0; pin < this.size; pin++) {
-      final int pin1 = pin;
-      in[pin] = new InputPin(state -> this.updateOutput(pin1));
-      in[pin].connectTo(board.getTransceiver().out(TransceiverSide.A, pin));
-      board.getTransceiver().in(TransceiverSide.A, pin).connectTo(this.out(pin));
-    }
+    final InputConnection in = new InputConnection(this.size, state -> this.updateOutput());
+    in.connectTo(board.getTransceiver().out(TransceiverSide.A));
+    board.getTransceiver().in(TransceiverSide.A).connectTo(this.out);
 
     this.in.put(board.getTransceiver(), in);
   }
 
-  private void updateOutput(final int pin) {
-    PinState state = PinState.LOW;
+  private void updateOutput() {
+    int output = 0;
 
-    for(final InputPin[] entry : this.in.values()) {
-      if(entry[pin].isHigh()) {
-        state = PinState.HIGH;
+    for(final InputConnection entry : this.in.values()) {
+      if(entry.getValue().isPresent()) {
+        output = entry.getValue().getAsInt();
         break;
       }
     }
 
-    if(state != this.out[pin].getState()) {
-      this.out[pin].setState(state);
+    if(this.out.getValue().getAsInt() != output) {
+      this.out.setValue(output);
     }
   }
 

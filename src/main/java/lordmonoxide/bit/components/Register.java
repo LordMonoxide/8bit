@@ -1,55 +1,37 @@
 package lordmonoxide.bit.components;
 
-import lordmonoxide.bit.FloatingPinException;
+import lordmonoxide.bit.FloatingConnectionException;
 import lordmonoxide.bit.parts.Component;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.InputConnection;
+import lordmonoxide.bit.parts.OutputConnection;
 import lordmonoxide.bit.parts.Pins;
 
-public class Register extends Component {
-  private final InputPin[] in;
-  private final OutputPin[] out;
+import java.util.OptionalInt;
 
-  public final InputPin load = new InputPin();
-  public final InputPin clock = new InputPin(this::onClock);
+public class Register extends Component {
+  public final InputConnection in;
+  public final OutputConnection out;
+
+  public final InputConnection load = new InputConnection(1);
+  public final InputConnection clock = new InputConnection(1, this::onClock);
 
   public final int size;
 
   public Register(final int size) {
     this.size = size;
 
-    this.in  = new InputPin[size];
-    this.out = new OutputPin[size];
-
-    for(int pin = 0; pin < size; pin++) {
-      this.in[pin] = new InputPin();
-      this.out[pin] = new OutputPin();
-    }
-  }
-
-  public InputPin in(final int pin) {
-    return this.in[pin];
-  }
-
-  public OutputPin out(final int pin) {
-    return this.out[pin];
+    this.in  = new InputConnection(size);
+    this.out = new OutputConnection(size).setValue(0);
   }
 
   public void clear() {
-    for(int pin = 0; pin < this.size; pin++) {
-      this.out[pin].setLow();
-    }
+    this.out.setValue(0);
   }
 
-  private void onClock(final PinState state) {
-    if(this.load.isHigh() && state == PinState.HIGH) {
-      for(int pin = 0; pin < this.size; pin++) {
-        if(this.in[pin].isDisconnected()) {
-          throw new FloatingPinException("Register floating input pin " + pin);
-        }
-
-        this.out[pin].setState(this.in[pin].getState());
+  private void onClock(final OptionalInt value) {
+    if(value.getAsInt() != 0) {
+      if(this.load.getValue().orElseThrow(() -> new FloatingConnectionException("Register load is floating")) != 0) {
+        this.out.setValue(this.in.getValue().orElseThrow(() -> new FloatingConnectionException("Register in is floating")));
       }
     }
   }
@@ -64,6 +46,6 @@ public class Register extends Component {
   }
 
   public int toInt() {
-    return Pins.toInt(this.out);
+    return this.out.getValue().getAsInt();
   }
 }

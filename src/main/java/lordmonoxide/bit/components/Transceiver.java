@@ -1,42 +1,34 @@
 package lordmonoxide.bit.components;
 
-import lordmonoxide.bit.FloatingPinException;
+import lordmonoxide.bit.FloatingConnectionException;
 import lordmonoxide.bit.parts.Component;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.InputConnection;
+import lordmonoxide.bit.parts.OutputConnection;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.OptionalInt;
 
 public class Transceiver extends Component {
-  private final Map<TransceiverSide, InputPin[]> in = new EnumMap<>(TransceiverSide.class);
-  private final Map<TransceiverSide, OutputPin[]> out = new EnumMap<>(TransceiverSide.class);
+  private final Map<TransceiverSide, InputConnection> in = new EnumMap<>(TransceiverSide.class);
+  private final Map<TransceiverSide, OutputConnection> out = new EnumMap<>(TransceiverSide.class);
 
   /**
    * LOW = b->a, HIGH = a->b
    */
-  public final InputPin dir = new InputPin(this::changeOutput);
+  public final InputConnection dir = new InputConnection(1, this::changeOutput);
 
-  public final InputPin enable = new InputPin(this::changeOutput);
+  public final InputConnection enable = new InputConnection(1, this::changeOutput);
 
   public final int size;
 
   public Transceiver(final int size) {
     this.size = size;
 
-    final InputPin[] aIn = new InputPin[size];
-    final InputPin[] bIn = new InputPin[size];
-    final OutputPin[] aOut = new OutputPin[size];
-    final OutputPin[] bOut = new OutputPin[size];
-
-    for(int i = 0; i < size; i++) {
-      final int i1 = i;
-      aIn[i] = new InputPin(state -> this.changeState(aIn[i1], bOut[i1]));
-      bIn[i] = new InputPin(state -> this.changeState(bIn[i1], aOut[i1]));
-      aOut[i] = new OutputPin();
-      bOut[i] = new OutputPin();
-    }
+    final OutputConnection aOut = new OutputConnection(size).setValue(0);
+    final OutputConnection bOut = new OutputConnection(size).setValue(0);
+    final InputConnection aIn = new InputConnection(size, value -> this.changeState(bOut, value));
+    final InputConnection bIn = new InputConnection(size, value -> this.changeState(aOut, value));
 
     this.in.put(TransceiverSide.A, aIn);
     this.in.put(TransceiverSide.B, bIn);
@@ -44,47 +36,31 @@ public class Transceiver extends Component {
     this.out.put(TransceiverSide.B, bOut);
   }
 
-  public InputPin in(final TransceiverSide side, final int pin) {
-    return this.in.get(side)[pin];
+  public InputConnection in(final TransceiverSide side) {
+    return this.in.get(side);
   }
 
-  public OutputPin out(final TransceiverSide side, final int pin) {
-    return this.out.get(side)[pin];
+  public OutputConnection out(final TransceiverSide side) {
+    return this.out.get(side);
   }
 
-  private void changeOutput(final PinState state) {
-    if(this.dir.isDisconnected() || this.enable.isDisconnected()) {
-      throw new FloatingPinException();
-    }
+  private void changeOutput(final OptionalInt value) {
+    final OutputConnection aOut = this.out.get(TransceiverSide.A);
+    final OutputConnection bOut = this.out.get(TransceiverSide.B);
 
-    final OutputPin[] aOut = this.out.get(TransceiverSide.A);
-    final OutputPin[] bOut = this.out.get(TransceiverSide.B);
+    aOut.disable();
+    bOut.disable();
 
-    for(int i = 0; i < this.size; i++) {
-      aOut[i].disable();
-      bOut[i].disable();
-    }
-
-    if(this.enable.isHigh()) {
-      if(this.dir.isHigh()) {
-        for(int i = 0; i < this.size; i++) {
-          bOut[i].enable();
-        }
-      }
-
-      if(this.dir.isLow()) {
-        for(int i = 0; i < this.size; i++) {
-          aOut[i].enable();
-        }
+    if(this.enable.getValue().orElseThrow(() -> new FloatingConnectionException("Transceiver enable is floating")) != 0) {
+      if(this.dir.getValue().orElseThrow(() -> new FloatingConnectionException("Transceiver dir is floating")) != 0) {
+        bOut.enable();
+      } else {
+        aOut.enable();
       }
     }
   }
 
-  private void changeState(final InputPin in, final OutputPin out) {
-    if(this.dir.isDisconnected()) {
-      throw new FloatingPinException();
-    }
-
-    out.setState(in.getState());
+  private void changeState(final OutputConnection out, final OptionalInt value) {
+    out.setValue(value.getAsInt());
   }
 }

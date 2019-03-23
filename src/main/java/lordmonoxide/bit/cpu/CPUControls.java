@@ -1,6 +1,6 @@
 package lordmonoxide.bit.cpu;
 
-import lordmonoxide.bit.parts.OutputPin;
+import lordmonoxide.bit.parts.OutputConnection;
 
 import java.util.function.Function;
 
@@ -27,18 +27,18 @@ public enum CPUControls {
   OUT_EN(cpu -> cpu.outEnable),
   ;
 
-  private final Function<CPU, OutputPin> get;
+  private final Function<CPU, OutputConnection> get;
 
-  CPUControls(final Function<CPU, OutputPin> get) {
+  CPUControls(final Function<CPU, OutputConnection> get) {
     this.get = get;
   }
 
   void setHigh(final CPU cpu) {
-    this.get.apply(cpu).setHigh();
+    this.get.apply(cpu).setValue(1);
   }
 
   void setLow(final CPU cpu) {
-    this.get.apply(cpu).setLow();
+    this.get.apply(cpu).setValue(0);
   }
 
   static void reset(final CPU cpu) {

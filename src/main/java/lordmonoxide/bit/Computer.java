@@ -10,13 +10,11 @@ import lordmonoxide.bit.boards.RegisterBoard;
 import lordmonoxide.bit.components.Clock;
 import lordmonoxide.bit.cpu.CPU;
 import lordmonoxide.bit.cpu.CPUInstructions;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.OutputConnection;
 
 public class Computer {
   public static void main(final String[] args) {
-    OutputPin.disableStateCallbacks();
+    OutputConnection.disableStateCallbacks();
 
     final Bus bus = Bus.eightBit();
 
@@ -41,10 +39,8 @@ public class Computer {
     // ALU SETUP
     final ALUBoard alu = new ALUBoard("ALU", 8);
 
-    for(int pin = 0; pin < 8; pin++) {
-      alu.a(pin).connectTo(registerA.out(pin));
-      alu.b(pin).connectTo(registerB.out(pin));
-    }
+    alu.a.connectTo(registerA.out);
+    alu.b.connectTo(registerB.out);
 
     bus.connect(alu);
 
@@ -64,14 +60,12 @@ public class Computer {
     bus.connect(bank);
 
     // RAM SETUP
-    final RAMBoard ram = new RAMBoard("RAM", 16, 8);
+    final RAMBoard ram = new RAMBoard("RAM", 8);
     ram.clock.connectTo(clock.out);
     bus.connect(ram);
 
-    for(int pin = 0; pin < 8; pin++) {
-      ram.address(pin).connectTo(address.out(pin));
-      ram.address(pin + 8).connectTo(bank.out(pin));
-    }
+    ram.bank.connectTo(bank.out);
+    ram.address.connectTo(address.out);
 
     // PROGRAM COUNTER
     final CounterBoard counter = new CounterBoard("Program counter", 8);
@@ -105,20 +99,9 @@ public class Computer {
     output.input.connectTo(cpu.outIn);
     output.enable.connectTo(cpu.outEnable);
 
-    for(int pin = 0; pin < 8; pin++) {
-      cpu.instruction(pin).connectTo(instruction.out(pin));
-    }
+    cpu.instruction.connectTo(instruction.out);
 
-    new InputPin(state -> {
-      if(state == PinState.HIGH) {
-        System.out.println(registerA);
-        System.out.println(registerB);
-        System.out.println(alu);
-        System.out.println(bus);
-      }
-    }).connectTo(clock.out);
-
-    OutputPin.enableStateCallbacks();
+    OutputConnection.enableStateCallbacks();
 
     // PROGRAM
     ram.set(0, CPUInstructions.LDA.ordinal());
@@ -131,122 +114,6 @@ public class Computer {
     ram.set(255, 0b00000010);
 
     System.out.println("STARTING");
-
     clock.run();
-
-    // DATA
-
-/*
-    address.enable.setHigh();
-    address.input.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    address.input.setLow();
-    address.enable.setLow();
-
-    bank.enable.setHigh();
-    bank.input.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    bank.input.setLow();
-    bank.enable.setLow();
-
-    bus.out(0).setHigh();
-
-    ram.input.setHigh();
-    ram.enable.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    ram.enable.setLow();
-    ram.input.setLow();
-
-    System.out.println(ram);
-
-    address.input.setHigh();
-    address.enable.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    address.enable.setLow();
-    address.input.setLow();
-
-    bank.input.setHigh();
-    bank.enable.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    bank.enable.setLow();
-    bank.input.setLow();
-
-    bus.out(0).setLow();
-    bus.out(1).setHigh();
-
-    ram.input.setHigh();
-    ram.enable.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    ram.enable.setLow();
-    ram.input.setLow();
-
-    bus.out(1).setLow();
-
-    System.out.println(ram);
-
-    address.input.setHigh();
-    address.enable.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    address.enable.setLow();
-    address.input.setLow();
-
-    bank.input.setHigh();
-    bank.enable.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    bank.enable.setLow();
-    bank.input.setLow();
-
-    System.out.println(ram);
-
-    ram.enable.setHigh();
-    ram.output.setHigh();
-
-    System.out.println(bus);
-*/
-
-/*
-    registerA.input.setHigh();
-    registerA.enable.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    registerA.enable.setLow();
-    registerA.input.setLow();
-
-    bus.out(0).setHigh();
-
-    registerB.input.setHigh();
-    registerB.enable.setHigh();
-    clock.out.setHigh();
-    clock.out.setLow();
-    registerB.enable.setLow();
-    registerB.input.setLow();
-
-    do {
-      output.input.setHigh();
-      output.enable.setHigh();
-      alu.enable.setHigh();
-      registerA.enable.setHigh();
-      registerA.input.setHigh();
-
-      clock.out.setHigh();
-      clock.out.setLow();
-
-      registerA.input.setLow();
-      registerA.enable.setLow();
-      alu.enable.setLow();
-      output.enable.setLow();
-      output.input.setLow();
-
-      Thread.sleep(500);
-    } while(true);
-*/
   }
 }

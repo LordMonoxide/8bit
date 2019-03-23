@@ -2,14 +2,16 @@ package lordmonoxide.bit.boards;
 
 import lordmonoxide.bit.components.ALU;
 import lordmonoxide.bit.components.TransceiverSide;
-import lordmonoxide.bit.parts.InputPin;
+import lordmonoxide.bit.parts.InputConnection;
 import lordmonoxide.bit.parts.Pins;
 
 public class ALUBoard extends Board {
   public final String name;
   private final ALU alu;
 
-  public final InputPin enable;
+  public final InputConnection a;
+  public final InputConnection b;
+  public final InputConnection enable;
 
   public ALUBoard(final String name, final int size) {
     super(size);
@@ -18,21 +20,12 @@ public class ALUBoard extends Board {
 
     this.alu = new ALU(size);
     this.alu.carryIn.connectTo(Pins.GND);
+    this.a = this.alu.a;
+    this.b = this.alu.b;
     this.enable = this.getTransceiver().enable;
 
     this.getTransceiver().dir.connectTo(Pins.GND);
-
-    for(int i = 0; i < this.size; i++ ) {
-      this.getTransceiver().in(TransceiverSide.B, i).connectTo(this.alu.out(i));
-    }
-  }
-
-  public InputPin a(final int pin) {
-    return this.alu.a(pin);
-  }
-
-  public InputPin b(final int pin) {
-    return this.alu.b(pin);
+    this.getTransceiver().in(TransceiverSide.B).connectTo(this.alu.out);
   }
 
   @Override

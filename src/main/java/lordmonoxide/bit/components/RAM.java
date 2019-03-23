@@ -1,58 +1,40 @@
 package lordmonoxide.bit.components;
 
+import lordmonoxide.bit.FloatingConnectionException;
 import lordmonoxide.bit.parts.Component;
-import lordmonoxide.bit.parts.InputPin;
-import lordmonoxide.bit.parts.OutputPin;
-import lordmonoxide.bit.parts.PinState;
+import lordmonoxide.bit.parts.InputConnection;
+import lordmonoxide.bit.parts.OutputConnection;
 import lordmonoxide.bit.parts.Pins;
+
+import java.util.Arrays;
+import java.util.OptionalInt;
 
 public class RAM extends Component {
   private final int[] values;
 
-  private final InputPin[] address;
+  public final InputConnection bank;
+  public final InputConnection address;
 
-  private final InputPin[] valueIn;
-  private final OutputPin[] valueOut;
+  public final InputConnection in;
+  public final OutputConnection out;
 
-  public final InputPin load = new InputPin();
-  public final InputPin clock = new InputPin(this::onClock);
+  public final InputConnection load = new InputConnection(1);
+  public final InputConnection clock = new InputConnection(1, this::onClock);
 
-  public final int addressSize;
-  public final int wordSize;
+  public final int size;
 
-  public RAM(final int addressSize, final int wordSize) {
-    this.addressSize = addressSize;
-    this.wordSize = wordSize;
+  public RAM(final int size) {
+    this.size = size;
 
-    final int addressCount = (int)Math.pow(2, addressSize);
+    final int addressCount = (int)Math.pow(2, size * 2);
 
-    this.address = new InputPin[addressSize];
-
-    for(int i = 0; i < addressSize; i++) {
-      this.address[i] = new InputPin();
-    }
+    this.bank = new InputConnection(size);
+    this.address = new InputConnection(size);
 
     this.values = new int[addressCount];
 
-    this.valueIn = new InputPin[wordSize];
-    this.valueOut = new OutputPin[wordSize];
-
-    for(int i = 0; i < wordSize; i++) {
-      this.valueIn[i] = new InputPin();
-      this.valueOut[i] = new OutputPin();
-    }
-  }
-
-  public InputPin address(final int pin) {
-    return this.address[pin];
-  }
-
-  public InputPin in(final int pin) {
-    return this.valueIn[pin];
-  }
-
-  public OutputPin out(final int pin) {
-    return this.valueOut[pin];
+    this.in = new InputConnection(size);
+    this.out = new OutputConnection(size).setValue(0);
   }
 
   public void set(final int address, final int value) {
@@ -60,37 +42,26 @@ public class RAM extends Component {
   }
 
   public void clear() {
-    final int addressCount = (int)Math.pow(2, addressSize);
-
-    for(int address = 0; address < addressCount; address++) {
-      this.values[address] = 0;
-    }
-
-    for(int pin = 0; pin < this.wordSize; pin++) {
-      this.valueOut[pin].setLow();
-    }
+    Arrays.fill(this.values, 0);
+    this.out.setValue(0);
   }
 
-  private void onClock(final PinState state) {
-    final int address = Pins.toInt(this.address);
-
-    if(state != PinState.HIGH) {
+  private void onClock(final OptionalInt value) {
+    if(value.getAsInt() == 0) {
       return;
     }
 
-    if(this.load.isHigh()) {
-      this.values[address] = Pins.toInt(this.valueIn);
+    final int address = this.bank.getValue().orElseThrow(() -> new FloatingConnectionException("RAM bank is floating")) << this.size | this.address.getValue().orElseThrow(() -> new FloatingConnectionException("RAM address is floating"));
+
+    if(this.load.getValue().orElseThrow(() -> new FloatingConnectionException("RAM load is floating")) != 0) {
+      this.values[address] = this.in.getValue().orElseThrow(() -> new FloatingConnectionException("RAM in is floating"));
     }
 
-    final int value = this.values[address];
-
-    for(int pin = 0; pin < this.wordSize; pin++) {
-      this.valueOut[pin].setState(Pins.fromInt(value, pin));
-    }
+    this.out.setValue(this.values[address]);
   }
 
   @Override
   public String toString() {
-    return "RAM: @" + Pins.toBits(this.address) + ": " + this.values[Pins.toInt(this.address)];
+    return "RAM: @" + Pins.toBits(this.bank) + Pins.toBits(this.address) + ": " + this.values[this.address.getValue().getAsInt()];
   }
 }

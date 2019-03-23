@@ -2,16 +2,16 @@ package lordmonoxide.bit.boards;
 
 import lordmonoxide.bit.components.Output;
 import lordmonoxide.bit.components.TransceiverSide;
-import lordmonoxide.bit.parts.InputPin;
+import lordmonoxide.bit.parts.InputConnection;
 import lordmonoxide.bit.parts.Pins;
 
 public class OutputBoard extends Board {
   public final String name;
   private final Output output;
 
-  public final InputPin enable;
-  public final InputPin input;
-  public final InputPin clock;
+  public final InputConnection enable;
+  public final InputConnection input;
+  public final InputConnection clock;
 
   public OutputBoard(final String name, final int size) {
     super(size);
@@ -25,9 +25,7 @@ public class OutputBoard extends Board {
 
     this.getTransceiver().dir.connectTo(Pins.VCC);
 
-    for(int pin = 0; pin < this.size; pin++ ) {
-      this.output.in(pin).connectTo(this.getTransceiver().out(TransceiverSide.B, pin));
-    }
+    this.output.in.connectTo(this.getTransceiver().out(TransceiverSide.B));
   }
 
   public void clear() {

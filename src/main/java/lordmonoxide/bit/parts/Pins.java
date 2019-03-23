@@ -1,34 +1,24 @@
 package lordmonoxide.bit.parts;
 
 public final class Pins {
-  public static final OutputPin VCC = new OutputPin().setHigh();
-  public static final OutputPin GND = new OutputPin().setLow();
+  public static final OutputConnection VCC = new OutputConnection(1).setValue(1);
+  public static final OutputConnection GND = new OutputConnection(1).setValue(0);
 
   private Pins() { }
 
-  public static String toBits(final Pin... pins) {
-    final String out = Integer.toString(toInt(pins), 2);
+  public static String toBits(final Connection connection) {
+    if(connection.getValue().isEmpty()) {
+      return "disconnected";
+    }
 
-    final int paddedLength = (int)Math.ceil(pins.length / 8.0f) * 8;
+    final String out = Integer.toString(connection.getValue().getAsInt(), 2);
+
+    final int paddedLength = (int)Math.ceil(connection.size / 8.0f) * 8;
 
     if(out.length() == paddedLength) {
       return out;
     }
 
     return "0".repeat(paddedLength - out.length()) + out;
-  }
-
-  public static int toInt(final Pin... pins) {
-    int output = 0;
-
-    for(int i = 0; i < pins.length; i++) {
-      output |= pins[i].getState().toInt() << i;
-    }
-
-    return output;
-  }
-
-  public static PinState fromInt(final int value, final int index) {
-    return (value & 1 << index) >> index == 1 ? PinState.HIGH : PinState.LOW;
   }
 }
