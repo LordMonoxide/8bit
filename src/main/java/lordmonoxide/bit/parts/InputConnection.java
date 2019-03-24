@@ -17,6 +17,10 @@ public class InputConnection extends Connection {
     return new AggregateInputConnection(size, inputs);
   }
 
+  public static InputConnection shrinker(final int size, final InputConnection original) {
+    return new InputShrinkerConnection(size, original);
+  }
+
   public InputConnection(final int size) {
     this(size, value -> { });
   }
@@ -85,6 +89,30 @@ public class InputConnection extends Connection {
       }
 
       return OptionalInt.of(output);
+    }
+  }
+
+  public static class InputShrinkerConnection extends InputConnection {
+    private final InputConnection original;
+
+    public InputShrinkerConnection(final int size, final InputConnection original) {
+      super(size, state -> { });
+
+      if(original.size <= size) {
+        throw new ConnectionMismatchException("Original size must be larger than shrunk size");
+      }
+
+      this.original = original;
+    }
+
+    @Override
+    public InputConnection connectTo(final OutputConnection connection) {
+      return this.original.connectTo(new OutputConnection.OutputWidenerConnection(this.original.size, connection));
+    }
+
+    @Override
+    public OptionalInt getValue() {
+      return this.original.getValue();
     }
   }
 }

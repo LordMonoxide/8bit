@@ -30,7 +30,7 @@ public class DisablableRegisterBoard extends Board {
     this.enable = this.getTransceiver().enable;
     this.clock = this.register.clock;
     this.input = InputConnection.aggregate(1, this.register.load, this.getTransceiver().dir);
-    this.disable = this.not.in;
+    this.disable = InputConnection.shrinker(1, this.not.in);
 
     this.and = new And(size);
     this.and.in(0).connectTo(this.not.out);

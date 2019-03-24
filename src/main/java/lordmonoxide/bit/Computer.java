@@ -88,7 +88,7 @@ public class Computer {
     address.enable.connectTo(cpu.addressEnable);
     bank.input.connectTo(cpu.bankIn);
     bank.enable.connectTo(cpu.bankEnable);
-    bank.disable.connectTo(OutputConnection.widen(8, cpu.bankDisable));
+    bank.disable.connectTo(cpu.bankDisable);
     ram.input.connectTo(cpu.ramIn);
     ram.enable.connectTo(cpu.ramEnable);
     counter.input.connectTo(cpu.countIn);
