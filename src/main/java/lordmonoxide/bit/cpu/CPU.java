@@ -14,6 +14,7 @@ public class CPU extends Component {
   public final OutputConnection bIn = new OutputConnection(1);
   public final OutputConnection bEnable = new OutputConnection(1);
   public final OutputConnection aluEnable = new OutputConnection(1);
+  public final OutputConnection aluSubtract = new OutputConnection(1);
   public final OutputConnection addressIn = new OutputConnection(1);
   public final OutputConnection addressEnable = new OutputConnection(1);
   public final OutputConnection bankIn = new OutputConnection(1);
@@ -28,6 +29,10 @@ public class CPU extends Component {
   public final OutputConnection instructionEnable = new OutputConnection(1);
   public final OutputConnection outIn = new OutputConnection(1);
   public final OutputConnection outEnable = new OutputConnection(1);
+  public final OutputConnection flagsIn = new OutputConnection(1);
+
+  public final InputConnection flagZero = new InputConnection(1);
+  public final InputConnection flagCarry = new InputConnection(1);
 
   public final InputConnection instruction;
 

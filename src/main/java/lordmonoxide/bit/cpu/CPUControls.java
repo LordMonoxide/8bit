@@ -11,6 +11,7 @@ public enum CPUControls {
   B_IN(cpu -> cpu.bIn),
   B_EN(cpu -> cpu.bEnable),
   ALU_EN(cpu -> cpu.aluEnable),
+  ALU_SUB(cpu -> cpu.aluSubtract),
   ADD_IN(cpu -> cpu.addressIn),
   ADD_EN(cpu -> cpu.addressEnable),
   BNK_IN(cpu -> cpu.bankIn),
@@ -25,6 +26,7 @@ public enum CPUControls {
   INST_EN(cpu -> cpu.instructionEnable),
   OUT_IN(cpu -> cpu.outIn),
   OUT_EN(cpu -> cpu.outEnable),
+  FLAGS_IN(cpu -> cpu.flagsIn),
   ;
 
   private final Function<CPU, OutputConnection> get;

@@ -11,14 +11,13 @@ public final class Pins {
       return "disconnected";
     }
 
-    final String out = Integer.toString(connection.getValue().getAsInt(), 2);
+    final int value = connection.getValue().getAsInt();
+    final StringBuilder out = new StringBuilder();
 
-    final int paddedLength = (int)Math.ceil(connection.size / 8.0f) * 8;
-
-    if(out.length() == paddedLength) {
-      return out;
+    for(int bit = 0; bit < connection.size; bit++) {
+      out.insert(0, value >> bit & 0b1);
     }
 
-    return "0".repeat(paddedLength - out.length()) + out;
+    return out.toString();
   }
 }

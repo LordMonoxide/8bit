@@ -8,6 +8,7 @@ import lordmonoxide.bit.boards.OutputBoard;
 import lordmonoxide.bit.boards.RAMBoard;
 import lordmonoxide.bit.boards.RegisterBoard;
 import lordmonoxide.bit.components.Clock;
+import lordmonoxide.bit.components.Register;
 import lordmonoxide.bit.cpu.CPU;
 import lordmonoxide.bit.cpu.CPUInstructions;
 import lordmonoxide.bit.parts.OutputConnection;
@@ -19,7 +20,7 @@ public class Computer {
     final Bus bus = Bus.eightBit();
 
     // CLOCK SETUP
-    final Clock clock = new Clock(10);
+    final Clock clock = new Clock(200);
 
     final CPU cpu = new CPU(8);
     cpu.clock.connectTo(clock.out);
@@ -77,6 +78,11 @@ public class Computer {
     instruction.clock.connectTo(clock.out);
     bus.connect(instruction);
 
+    // FLAGS REGISTER
+    final Register flags = new Register(2);
+    flags.clock.connectTo(clock.out);
+    flags.in.connectTo(OutputConnection.combine(alu.zero, alu.carry));
+
     // CPU SETUP
     clock.halt.connectTo(cpu.halt);
     registerA.input.connectTo(cpu.aIn);
@@ -84,6 +90,7 @@ public class Computer {
     registerB.input.connectTo(cpu.bIn);
     registerB.enable.connectTo(cpu.bEnable);
     alu.enable.connectTo(cpu.aluEnable);
+    alu.sub.connectTo(cpu.aluSubtract);
     address.input.connectTo(cpu.addressIn);
     address.enable.connectTo(cpu.addressEnable);
     bank.input.connectTo(cpu.bankIn);
@@ -98,6 +105,10 @@ public class Computer {
     instruction.enable.connectTo(cpu.instructionEnable);
     output.input.connectTo(cpu.outIn);
     output.enable.connectTo(cpu.outEnable);
+    flags.load.connectTo(cpu.flagsIn);
+
+    cpu.flagZero.connectTo(new OutputConnection.OutputSplitterConnection(flags.out, 0));
+    cpu.flagCarry.connectTo(new OutputConnection.OutputSplitterConnection(flags.out, 1));
 
     cpu.instruction.connectTo(instruction.out);
 
@@ -105,13 +116,18 @@ public class Computer {
 
     // PROGRAM
     ram.set(0, CPUInstructions.LDA.ordinal());
-    ram.set(1, 254);
-    ram.set(2, CPUInstructions.ADD.ordinal());
-    ram.set(3, 255);
-    ram.set(4, CPUInstructions.OUT.ordinal());
-    ram.set(5, CPUInstructions.HALT.ordinal());
-    ram.set(254, 0b01000000);
-    ram.set(255, 0b00000010);
+    ram.set(1, 255);
+    ram.set(2, CPUInstructions.ADDI.ordinal());
+    ram.set(3, 1);
+    ram.set(4, CPUInstructions.STA.ordinal());
+    ram.set(5, 255);
+    ram.set(6, CPUInstructions.OUT.ordinal());
+    ram.set(7, CPUInstructions.JC.ordinal());
+    ram.set(8, 11);
+    ram.set(9, CPUInstructions.JMP.ordinal());
+    ram.set(10, 2);
+    ram.set(11, CPUInstructions.HALT.ordinal());
+    ram.set(255, 0);
 
     System.out.println("STARTING");
     clock.run();

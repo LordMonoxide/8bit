@@ -10,6 +10,7 @@ import java.util.OptionalInt;
 public class ALU extends Component {
   public final InputConnection a;
   public final InputConnection b;
+  public final InputConnection sub;
   public final OutputConnection out;
 
   public final InputConnection carryIn;
@@ -20,10 +21,11 @@ public class ALU extends Component {
 
   public ALU(final int size) {
     this.size = size;
-    this.max = (int)Math.pow(2, size);
+    this.max = (int)Math.pow(2, size) - 1;
 
     this.a = new InputConnection(size, this::onInputChanged);
     this.b = new InputConnection(size, this::onInputChanged);
+    this.sub = new InputConnection(1);
     this.out = new OutputConnection(size).setValue(0);
 
     this.carryIn = new InputConnection(1, this::onInputChanged);
@@ -31,11 +33,12 @@ public class ALU extends Component {
   }
 
   private void onInputChanged(final OptionalInt value) {
-    if(this.a.getValue().isEmpty() || this.b.getValue().isEmpty() || this.carryIn.getValue().isEmpty()) {
-      return;
-    }
+    final boolean subtract = this.sub.getValue().orElseThrow(() -> new RuntimeException("ALU sub was floating")) != 0;
+    final int a = this.a.getValue().orElseThrow(() -> new RuntimeException("ALU a was floating"));
+    final int b = this.b.getValue().orElseThrow(() -> new RuntimeException("ALU b was floating"));
+    final int carryIn = this.carryIn.getValue().orElseThrow(() -> new RuntimeException("ALU carry in was floating"));
 
-    final int sum = this.a.getValue().getAsInt() + this.b.getValue().getAsInt() + this.carryIn.getValue().getAsInt();
+    final int sum = a + (subtract ? -b : b) + carryIn;
 
     if(sum > this.max) {
       this.carryOut.setValue(1);
@@ -43,7 +46,7 @@ public class ALU extends Component {
       this.carryOut.setValue(0);
     }
 
-    this.out.setValue(sum % this.max);
+    this.out.setValue(Math.floorMod(sum, this.max + 1));
   }
 
   @Override
