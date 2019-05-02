@@ -20,7 +20,7 @@ public class Computer {
     final Bus bus = Bus.eightBit();
 
     // CLOCK SETUP
-    final Clock clock = new Clock(200);
+    final Clock clock = new Clock(500);
 
     final CPU cpu = new CPU(8);
     cpu.clock.connectTo(clock.out);
@@ -115,21 +115,54 @@ public class Computer {
     OutputConnection.enableStateCallbacks();
 
     // PROGRAM
-    ram.set(0, CPUInstructions.LDA.ordinal());
-    ram.set(1, 255);
-    ram.set(2, CPUInstructions.ADDI.ordinal());
-    ram.set(3, 1);
-    ram.set(4, CPUInstructions.STA.ordinal());
-    ram.set(5, 255);
-    ram.set(6, CPUInstructions.OUT.ordinal());
-    ram.set(7, CPUInstructions.JC.ordinal());
-    ram.set(8, 11);
-    ram.set(9, CPUInstructions.JMP.ordinal());
-    ram.set(10, 2);
-    ram.set(11, CPUInstructions.HALT.ordinal());
-    ram.set(255, 0);
+    Programmer.program(ram, Computer::fibonacci);
 
     System.out.println("STARTING");
     clock.run();
+  }
+
+  private static void count(final Programmer programmer) {
+    programmer
+      .mark("loop")                       // Mark the start of the loop
+      .set(CPUInstructions.LDA, "varA")   // Load variable "varA" into register A
+      .set(CPUInstructions.OUT)           // Output the value
+      .set(CPUInstructions.ADDI, 1)       // Add 1 to register A
+      .set(CPUInstructions.STA, "varA")   // Store the value of register A into variable "varA"
+      .set(CPUInstructions.JC, "exit")    // Jump to the "exit" mark if the value rolls over from 255 to 0
+      .set(CPUInstructions.JMP, "loop")   // Jump back up to the "loop" mark
+
+      .mark("exit")                       // Mark the exit point
+      .set(CPUInstructions.HALT)          // Halt execution
+
+      .mark("varA")                       // Mark variable "varA"
+      .set(0)                             // Initialize "varA" to 0
+    ;
+  }
+
+  private static void fibonacci(final Programmer programmer) {
+    programmer
+      .set(CPUInstructions.LDA, "varA")       // Load and display the first two numbers
+      .set(CPUInstructions.OUT)               //
+      .set(CPUInstructions.LDA, "varB")       //
+      .set(CPUInstructions.OUT)               //
+
+      .mark("loop")
+      .set(CPUInstructions.LDA, "varA")       // Load "varA" into register A
+      .set(CPUInstructions.ADD, "varB")       // Load "varB" into register B, load sum (regA+regB) into register A
+      .set(CPUInstructions.JC, "overflow")    // Jump out of the loop if we overflow
+      .set(CPUInstructions.OUT)               // Display the value in register A
+      .set(CPUInstructions.STB, "varA")       // Store register B in "varA"
+      .set(CPUInstructions.STA, "varB")       // Store register A in "varB"
+      .set(CPUInstructions.JMP, "loop")       // Jump back up to the "loop" mark
+
+      .mark("overflow")
+      .set(CPUInstructions.HALT)              // Stop execution
+
+      .mark("varA")
+      .set(0)                                 // Initialize "varA"
+
+      .mark("varB")
+      .set(1)                                 // Initialize "varB"
+    ;
   }
 }
