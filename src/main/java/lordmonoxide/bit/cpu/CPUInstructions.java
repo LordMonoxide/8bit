@@ -33,11 +33,13 @@ public enum CPUInstructions {
   ),
   STA(op()
     .step(CPUControls.ADD_EN, CPUControls.ADD_IN, CPUControls.CNT_EN)
-    .step(CPUControls.A_EN, CPUControls.RAM_EN, CPUControls.RAM_IN, CPUControls.CNT_CNT)
+    .step(CPUControls.ADD_EN, CPUControls.ADD_IN, CPUControls.RAM_EN, CPUControls.CNT_CNT)
+    .step(CPUControls.A_EN, CPUControls.RAM_EN, CPUControls.RAM_IN)
   ),
   STB(op()
     .step(CPUControls.ADD_EN, CPUControls.ADD_IN, CPUControls.CNT_EN)
-    .step(CPUControls.B_EN, CPUControls.RAM_EN, CPUControls.RAM_IN, CPUControls.CNT_CNT)
+    .step(CPUControls.ADD_EN, CPUControls.ADD_IN, CPUControls.RAM_EN, CPUControls.CNT_CNT)
+    .step(CPUControls.B_EN, CPUControls.RAM_EN, CPUControls.RAM_IN)
   ),
   ADD(op()
     .step(CPUControls.ADD_EN, CPUControls.ADD_IN, CPUControls.CNT_EN)
