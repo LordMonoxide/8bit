@@ -41,6 +41,10 @@ public class RAM extends Component {
     this.values[address] = value;
   }
 
+  public int get(final int address) {
+    return this.values[address];
+  }
+
   public void clear() {
     Arrays.fill(this.values, 0);
     this.out.setValue(0);

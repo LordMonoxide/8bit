@@ -34,6 +34,10 @@ public class RAMBoard extends Board {
     this.ram.set(address, value);
   }
 
+  public int get(final int address) {
+    return this.ram.get(address);
+  }
+
   public void clear() {
     this.ram.clear();
   }
