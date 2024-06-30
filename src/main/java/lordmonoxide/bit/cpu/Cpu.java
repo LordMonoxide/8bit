@@ -7,7 +7,7 @@ import lordmonoxide.bit.parts.OutputConnection;
 
 import java.util.OptionalInt;
 
-public class CPU extends Component {
+public class Cpu extends Component {
   public final OutputConnection halt = new OutputConnection(1);
   public final OutputConnection aIn = new OutputConnection(1);
   public final OutputConnection aEnable = new OutputConnection(1);
@@ -40,8 +40,8 @@ public class CPU extends Component {
 
   public final InputConnection clock = new InputConnection(1, this::onClock);
 
-  public CPU(final int size) {
-    this.instruction = new InputConnection(size);
+  public Cpu(final int bits) {
+    this.instruction = new InputConnection(bits);
   }
 
   private void onClock(final OptionalInt value) {
@@ -57,11 +57,11 @@ public class CPU extends Component {
       throw new FloatingConnectionException("CPU instruction connection is floating");
     }
 
-    final CPUInstructions instruction = CPUInstructions.values()[this.instruction.getValue().getAsInt()];
+    final CpuInstructions instruction = CpuInstructions.values()[this.instruction.getValue().getAsInt()];
 
 //    System.out.println(instruction + " " + this.step);
 
-    CPUControls.reset(this);
+    CpuControls.reset(this);
     instruction.activate(this, this.step);
 
     this.step = (this.step + 1) % 6;

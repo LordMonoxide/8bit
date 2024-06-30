@@ -1,12 +1,12 @@
 package lordmonoxide.bit.boards;
 
-import lordmonoxide.bit.components.RAM;
+import lordmonoxide.bit.components.Ram;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputConnection;
 
-public class RAMBoard extends Board {
+public class RamBoard extends Board {
   public final String name;
-  private final RAM ram;
+  private final Ram ram;
 
   public final InputConnection enable;
   public final InputConnection clock;
@@ -14,12 +14,12 @@ public class RAMBoard extends Board {
   public final InputConnection bank;
   public final InputConnection address;
 
-  public RAMBoard(final String name, final int size) {
-    super(size);
+  public RamBoard(final String name, final int bits) {
+    super(bits);
 
     this.name = name;
 
-    this.ram = new RAM(size);
+    this.ram = new Ram(bits);
     this.enable = this.getTransceiver().enable;
     this.clock = this.ram.clock;
     this.input = InputConnection.aggregate(1, this.ram.load, this.getTransceiver().dir);

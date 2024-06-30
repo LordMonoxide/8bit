@@ -13,12 +13,12 @@ public class CounterBoard extends Board {
   public final InputConnection input;
   public final InputConnection count;
 
-  public CounterBoard(final String name, final int size) {
-    super(size);
+  public CounterBoard(final String name, final int bits) {
+    super(bits);
 
     this.name = name;
 
-    this.counter = new Counter(size);
+    this.counter = new Counter(bits);
     this.enable = this.getTransceiver().enable;
     this.clock = this.counter.clock;
     this.count = this.counter.count;

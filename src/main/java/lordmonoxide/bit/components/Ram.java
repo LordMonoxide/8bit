@@ -9,7 +9,7 @@ import lordmonoxide.bit.parts.Pins;
 import java.util.Arrays;
 import java.util.OptionalInt;
 
-public class RAM extends Component {
+public class Ram extends Component {
   private final int[] values;
 
   public final InputConnection bank;
@@ -21,20 +21,20 @@ public class RAM extends Component {
   public final InputConnection load = new InputConnection(1);
   public final InputConnection clock = new InputConnection(1, this::onClock);
 
-  public final int size;
+  public final int bits;
 
-  public RAM(final int size) {
-    this.size = size;
+  public Ram(final int bits) {
+    this.bits = bits;
 
-    final int addressCount = (int)Math.pow(2, size * 2);
+    final int addressCount = (int)Math.pow(2, bits * 2);
 
-    this.bank = new InputConnection(size);
-    this.address = new InputConnection(size);
+    this.bank = new InputConnection(bits);
+    this.address = new InputConnection(bits);
 
     this.values = new int[addressCount];
 
-    this.in = new InputConnection(size);
-    this.out = new OutputConnection(size).setValue(0);
+    this.in = new InputConnection(bits);
+    this.out = new OutputConnection(bits).setValue(0);
   }
 
   public void set(final int address, final int value) {
@@ -55,7 +55,7 @@ public class RAM extends Component {
       return;
     }
 
-    final int address = this.bank.getValue().orElseThrow(() -> new FloatingConnectionException("RAM bank is floating")) << this.size | this.address.getValue().orElseThrow(() -> new FloatingConnectionException("RAM address is floating"));
+    final int address = this.bank.getValue().orElseThrow(() -> new FloatingConnectionException("RAM bank is floating")) << this.bits | this.address.getValue().orElseThrow(() -> new FloatingConnectionException("RAM address is floating"));
 
     if(this.load.getValue().orElseThrow(() -> new FloatingConnectionException("RAM load is floating")) != 0) {
       this.values[address] = this.in.getValue().orElseThrow(() -> new FloatingConnectionException("RAM in is floating"));

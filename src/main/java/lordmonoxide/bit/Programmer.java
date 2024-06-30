@@ -1,14 +1,14 @@
 package lordmonoxide.bit;
 
-import lordmonoxide.bit.boards.RAMBoard;
-import lordmonoxide.bit.cpu.CPUInstructions;
+import lordmonoxide.bit.boards.RamBoard;
+import lordmonoxide.bit.cpu.CpuInstructions;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public class Programmer {
-  public static void program(final RAMBoard ram, final Consumer<Programmer> programmer) {
+  public static void program(final RamBoard ram, final Consumer<Programmer> programmer) {
     final Programmer p = new Programmer();
     programmer.accept(p);
 
@@ -24,7 +24,7 @@ public class Programmer {
   private final Map<String, Integer> marks = new HashMap<>();
   private int address;
 
-  public Programmer set(final CPUInstructions instruction, final int... values) {
+  public Programmer set(final CpuInstructions instruction, final int... values) {
     this.set(instruction.ordinal());
 
     for(final int value : values) {
@@ -34,7 +34,7 @@ public class Programmer {
     return this;
   }
 
-  public Programmer set(final CPUInstructions instruction, final String label) {
+  public Programmer set(final CpuInstructions instruction, final String label) {
     this.set(instruction.ordinal());
     this.instructions.put(this.address++, (ram, address) -> ram.set(address, this.marks.get(label)));
     return this;
@@ -57,6 +57,6 @@ public class Programmer {
 
   @FunctionalInterface
   private interface Instruction {
-    void apply(final RAMBoard ram, final int address);
+    void apply(final RamBoard ram, final int address);
   }
 }

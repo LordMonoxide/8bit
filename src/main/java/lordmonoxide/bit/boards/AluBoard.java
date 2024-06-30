@@ -1,15 +1,15 @@
 package lordmonoxide.bit.boards;
 
-import lordmonoxide.bit.components.ALU;
+import lordmonoxide.bit.components.Alu;
 import lordmonoxide.bit.components.Nor;
 import lordmonoxide.bit.components.TransceiverSide;
 import lordmonoxide.bit.parts.InputConnection;
 import lordmonoxide.bit.parts.OutputConnection;
 import lordmonoxide.bit.parts.Pins;
 
-public class ALUBoard extends Board {
+public class AluBoard extends Board {
   public final String name;
-  private final ALU alu;
+  private final Alu alu;
 
   public final InputConnection a;
   public final InputConnection b;
@@ -21,13 +21,13 @@ public class ALUBoard extends Board {
 
   private final Nor zeroNor;
 
-  public ALUBoard(final String name, final int size) {
-    super(size);
+  public AluBoard(final String name, final int bits) {
+    super(bits);
 
     this.name = name;
 
-    this.alu = new ALU(size);
-    this.zeroNor = new Nor(1, size);
+    this.alu = new Alu(bits);
+    this.zeroNor = new Nor(1, bits);
 
     this.sub = this.alu.sub;
 

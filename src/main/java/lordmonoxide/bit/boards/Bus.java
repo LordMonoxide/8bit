@@ -14,19 +14,19 @@ public class Bus extends Component {
   private final Map<Transceiver, InputConnection> in = new HashMap<>();
   public final OutputConnection out;
 
-  public final int size;
+  public final int bits;
 
   public static Bus eightBit() {
     return new Bus(8);
   }
 
-  public Bus(final int size) {
-    this.size = size;
-    this.out = new OutputConnection(size);
+  public Bus(final int bits) {
+    this.bits = bits;
+    this.out = new OutputConnection(bits);
   }
 
   public void connect(final Board board) {
-    final InputConnection in = new InputConnection(this.size, state -> this.updateOutput());
+    final InputConnection in = new InputConnection(this.bits, state -> this.updateOutput());
     in.connectTo(board.getTransceiver().out(TransceiverSide.A));
     board.getTransceiver().in(TransceiverSide.A).connectTo(this.out);
 

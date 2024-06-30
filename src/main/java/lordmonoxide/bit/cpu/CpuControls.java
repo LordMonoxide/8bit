@@ -4,7 +4,7 @@ import lordmonoxide.bit.parts.OutputConnection;
 
 import java.util.function.Function;
 
-public enum CPUControls {
+public enum CpuControls {
   HALT(cpu -> cpu.halt),
   A_IN(cpu -> cpu.aIn),
   A_EN(cpu -> cpu.aEnable),
@@ -29,22 +29,22 @@ public enum CPUControls {
   FLAGS_IN(cpu -> cpu.flagsIn),
   ;
 
-  private final Function<CPU, OutputConnection> get;
+  private final Function<Cpu, OutputConnection> get;
 
-  CPUControls(final Function<CPU, OutputConnection> get) {
+  CpuControls(final Function<Cpu, OutputConnection> get) {
     this.get = get;
   }
 
-  void setHigh(final CPU cpu) {
+  void setHigh(final Cpu cpu) {
     this.get.apply(cpu).setValue(1);
   }
 
-  void setLow(final CPU cpu) {
+  void setLow(final Cpu cpu) {
     this.get.apply(cpu).setValue(0);
   }
 
-  static void reset(final CPU cpu) {
-    for(final CPUControls control : values()) {
+  static void reset(final Cpu cpu) {
+    for(final CpuControls control : values()) {
       control.setLow(cpu);
     }
   }

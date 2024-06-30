@@ -19,20 +19,20 @@ public class DisablableRegisterBoard extends Board {
   public final InputConnection disable;
   public final OutputConnection out;
 
-  public DisablableRegisterBoard(final String name, final int size) {
-    super(size);
+  public DisablableRegisterBoard(final String name, final int bits) {
+    super(bits);
 
     this.name = name;
 
-    this.not = new Not(size);
+    this.not = new Not(bits);
 
-    this.register = new Register(size);
+    this.register = new Register(bits);
     this.enable = this.getTransceiver().enable;
     this.clock = this.register.clock;
     this.input = InputConnection.aggregate(1, this.register.load, this.getTransceiver().dir);
     this.disable = InputConnection.shrinker(1, this.not.in);
 
-    this.and = new And(size);
+    this.and = new And(bits);
     this.and.in(0).connectTo(this.not.out);
     this.and.in(1).connectTo(this.register.out);
     this.out = this.and.out;

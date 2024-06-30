@@ -7,7 +7,7 @@ import lordmonoxide.bit.parts.Pins;
 
 import java.util.OptionalInt;
 
-public class ALU extends Component {
+public class Alu extends Component {
   public final InputConnection a;
   public final InputConnection b;
   public final InputConnection sub;
@@ -16,17 +16,17 @@ public class ALU extends Component {
   public final InputConnection carryIn;
   public final OutputConnection carryOut;
 
-  public final int size;
+  public final int bits;
   private final int max;
 
-  public ALU(final int size) {
-    this.size = size;
-    this.max = (int)Math.pow(2, size) - 1;
+  public Alu(final int bits) {
+    this.bits = bits;
+    this.max = (int)Math.pow(2, bits) - 1;
 
-    this.a = new InputConnection(size, this::onInputChanged);
-    this.b = new InputConnection(size, this::onInputChanged);
+    this.a = new InputConnection(bits, this::onInputChanged);
+    this.b = new InputConnection(bits, this::onInputChanged);
     this.sub = new InputConnection(1);
-    this.out = new OutputConnection(size).setValue(0);
+    this.out = new OutputConnection(bits).setValue(0);
 
     this.carryIn = new InputConnection(1, this::onInputChanged);
     this.carryOut = new OutputConnection(1).setValue(0);

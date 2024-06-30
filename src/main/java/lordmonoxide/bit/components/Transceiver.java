@@ -20,15 +20,15 @@ public class Transceiver extends Component {
 
   public final InputConnection enable = new InputConnection(1, this::changeOutput);
 
-  public final int size;
+  public final int bits;
 
-  public Transceiver(final int size) {
-    this.size = size;
+  public Transceiver(final int bits) {
+    this.bits = bits;
 
-    final OutputConnection aOut = new OutputConnection(size).setValue(0);
-    final OutputConnection bOut = new OutputConnection(size).setValue(0);
-    final InputConnection aIn = new InputConnection(size, value -> this.changeState(bOut, value));
-    final InputConnection bIn = new InputConnection(size, value -> this.changeState(aOut, value));
+    final OutputConnection aOut = new OutputConnection(bits).setValue(0);
+    final OutputConnection bOut = new OutputConnection(bits).setValue(0);
+    final InputConnection aIn = new InputConnection(bits, value -> this.changeState(bOut, value));
+    final InputConnection bIn = new InputConnection(bits, value -> this.changeState(aOut, value));
 
     this.in.put(TransceiverSide.A, aIn);
     this.in.put(TransceiverSide.B, bIn);

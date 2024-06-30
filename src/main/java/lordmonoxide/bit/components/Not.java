@@ -13,11 +13,11 @@ public class Not extends Component {
 
   private final int mask;
 
-  public Not(final int size) {
-    this.in = new InputConnection(size, this::onStateChange);
-    this.out = new OutputConnection(size).setValue(0);
+  public Not(final int bits) {
+    this.in = new InputConnection(bits, this::onStateChange);
+    this.out = new OutputConnection(bits).setValue(0);
 
-    this.mask = (int)Math.pow(2, size) - 1;
+    this.mask = (int)Math.pow(2, bits) - 1;
   }
 
   private void onStateChange(final OptionalInt value) {

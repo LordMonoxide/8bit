@@ -13,12 +13,12 @@ public class OutputBoard extends Board {
   public final InputConnection input;
   public final InputConnection clock;
 
-  public OutputBoard(final String name, final int size) {
-    super(size);
+  public OutputBoard(final String name, final int bits) {
+    super(bits);
 
     this.name = name;
 
-    this.output = new Output(size);
+    this.output = new Output(bits);
     this.enable = this.getTransceiver().enable;
     this.input = this.output.load;
     this.clock = this.output.clock;

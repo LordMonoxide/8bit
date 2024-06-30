@@ -14,14 +14,14 @@ public class Output extends Component {
   public final InputConnection load;
   public final InputConnection clock;
 
-  public final int size;
+  public final int bits;
 
-  public Output(final int size) {
-    this.size = size;
-    this.register = new Register(size);
+  public Output(final int bits) {
+    this.bits = bits;
+    this.register = new Register(bits);
     this.in = this.register.in;
     this.load = this.register.load;
-    this.clock = InputConnection.aggregate(size, this.register.clock, new InputConnection(1, this::onClock));
+    this.clock = InputConnection.aggregate(bits, this.register.clock, new InputConnection(1, this::onClock));
   }
 
   public void clear() {

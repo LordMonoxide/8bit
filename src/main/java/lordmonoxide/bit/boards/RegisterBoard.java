@@ -14,12 +14,12 @@ public class RegisterBoard extends Board {
   public final InputConnection input;
   public final OutputConnection out;
 
-  public RegisterBoard(final String name, final int size) {
-    super(size);
+  public RegisterBoard(final String name, final int bits) {
+    super(bits);
 
     this.name = name;
 
-    this.register = new Register(size);
+    this.register = new Register(bits);
     this.enable = this.getTransceiver().enable;
     this.clock = this.register.clock;
     this.input = InputConnection.aggregate(1, this.register.load, this.getTransceiver().dir);

@@ -1,16 +1,16 @@
 package lordmonoxide.bit;
 
-import lordmonoxide.bit.boards.ALUBoard;
+import lordmonoxide.bit.boards.AluBoard;
 import lordmonoxide.bit.boards.Bus;
 import lordmonoxide.bit.boards.CounterBoard;
 import lordmonoxide.bit.boards.DisablableRegisterBoard;
 import lordmonoxide.bit.boards.OutputBoard;
-import lordmonoxide.bit.boards.RAMBoard;
+import lordmonoxide.bit.boards.RamBoard;
 import lordmonoxide.bit.boards.RegisterBoard;
 import lordmonoxide.bit.components.Clock;
 import lordmonoxide.bit.components.Register;
-import lordmonoxide.bit.cpu.CPU;
-import lordmonoxide.bit.cpu.CPUInstructions;
+import lordmonoxide.bit.cpu.Cpu;
+import lordmonoxide.bit.cpu.CpuInstructions;
 import lordmonoxide.bit.parts.OutputConnection;
 
 public class Computer {
@@ -22,7 +22,7 @@ public class Computer {
     // CLOCK SETUP
     final Clock clock = new Clock(500);
 
-    final CPU cpu = new CPU(8);
+    final Cpu cpu = new Cpu(8);
     cpu.clock.connectTo(clock.out);
 
     // A REGISTER SETUP
@@ -38,7 +38,7 @@ public class Computer {
     bus.connect(registerB);
 
     // ALU SETUP
-    final ALUBoard alu = new ALUBoard("ALU", 8);
+    final AluBoard alu = new AluBoard("ALU", 8);
 
     alu.a.connectTo(registerA.out);
     alu.b.connectTo(registerB.out);
@@ -61,7 +61,7 @@ public class Computer {
     bus.connect(bank);
 
     // RAM SETUP
-    final RAMBoard ram = new RAMBoard("RAM", 8);
+    final RamBoard ram = new RamBoard("RAM", 8);
     ram.clock.connectTo(clock.out);
     bus.connect(ram);
 
@@ -124,15 +124,15 @@ public class Computer {
   private static void count(final Programmer programmer) {
     programmer
       .mark("loop")                       // Mark the start of the loop
-      .set(CPUInstructions.LDA, "varA")   // Load variable "varA" into register A
-      .set(CPUInstructions.OUT)           // Output the value
-      .set(CPUInstructions.ADDI, 1)       // Add 1 to register A
-      .set(CPUInstructions.STA, "varA")   // Store the value of register A into variable "varA"
-      .set(CPUInstructions.JC, "exit")    // Jump to the "exit" mark if the value rolls over from 255 to 0
-      .set(CPUInstructions.JMP, "loop")   // Jump back up to the "loop" mark
+      .set(CpuInstructions.LDA, "varA")   // Load variable "varA" into register A
+      .set(CpuInstructions.OUT)           // Output the value
+      .set(CpuInstructions.ADDI, 1)       // Add 1 to register A
+      .set(CpuInstructions.STA, "varA")   // Store the value of register A into variable "varA"
+      .set(CpuInstructions.JC, "exit")    // Jump to the "exit" mark if the value rolls over from 255 to 0
+      .set(CpuInstructions.JMP, "loop")   // Jump back up to the "loop" mark
 
       .mark("exit")                       // Mark the exit point
-      .set(CPUInstructions.HALT)          // Halt execution
+      .set(CpuInstructions.HALT)          // Halt execution
 
       .mark("varA")                       // Mark variable "varA"
       .set(0)                             // Initialize "varA" to 0
@@ -141,22 +141,22 @@ public class Computer {
 
   private static void fibonacci(final Programmer programmer) {
     programmer
-      .set(CPUInstructions.LDA, "varA")       // Load and display the first two numbers
-      .set(CPUInstructions.OUT)               //
-      .set(CPUInstructions.LDA, "varB")       //
-      .set(CPUInstructions.OUT)               //
+      .set(CpuInstructions.LDA, "varA")       // Load and display the first two numbers
+      .set(CpuInstructions.OUT)               //
+      .set(CpuInstructions.LDA, "varB")       //
+      .set(CpuInstructions.OUT)               //
 
       .mark("loop")
-      .set(CPUInstructions.LDA, "varA")       // Load "varA" into register A
-      .set(CPUInstructions.ADD, "varB")       // Load "varB" into register B, load sum (regA+regB) into register A
-      .set(CPUInstructions.JC, "overflow")    // Jump out of the loop if we overflow
-      .set(CPUInstructions.OUT)               // Display the value in register A
-      .set(CPUInstructions.STB, "varA")       // Store register B in "varA"
-      .set(CPUInstructions.STA, "varB")       // Store register A in "varB"
-      .set(CPUInstructions.JMP, "loop")       // Jump back up to the "loop" mark
+      .set(CpuInstructions.LDA, "varA")       // Load "varA" into register A
+      .set(CpuInstructions.ADD, "varB")       // Load "varB" into register B, load sum (regA+regB) into register A
+      .set(CpuInstructions.JC, "overflow")    // Jump out of the loop if we overflow
+      .set(CpuInstructions.OUT)               // Display the value in register A
+      .set(CpuInstructions.STB, "varA")       // Store register B in "varA"
+      .set(CpuInstructions.STA, "varB")       // Store register A in "varB"
+      .set(CpuInstructions.JMP, "loop")       // Jump back up to the "loop" mark
 
       .mark("overflow")
-      .set(CPUInstructions.HALT)              // Stop execution
+      .set(CpuInstructions.HALT)              // Stop execution
 
       .mark("varA")
       .set(0)                                 // Initialize "varA"

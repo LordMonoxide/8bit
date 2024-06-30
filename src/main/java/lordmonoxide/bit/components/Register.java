@@ -15,13 +15,13 @@ public class Register extends Component {
   public final InputConnection load = new InputConnection(1);
   public final InputConnection clock = new InputConnection(1, this::onClock);
 
-  public final int size;
+  public final int bits;
 
-  public Register(final int size) {
-    this.size = size;
+  public Register(final int bits) {
+    this.bits = bits;
 
-    this.in  = new InputConnection(size);
-    this.out = new OutputConnection(size).setValue(0);
+    this.in  = new InputConnection(bits);
+    this.out = new OutputConnection(bits).setValue(0);
   }
 
   public void clear() {

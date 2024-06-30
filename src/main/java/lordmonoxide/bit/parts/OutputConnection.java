@@ -29,9 +29,9 @@ public class OutputConnection extends Connection {
   }
 
   public static OutputConnection[] split(final OutputConnection source) {
-    final OutputConnection[] connections = new OutputConnection[source.size];
+    final OutputConnection[] connections = new OutputConnection[source.bits];
 
-    for(int bit = 0; bit < source.size; bit++) {
+    for(int bit = 0; bit < source.bits; bit++) {
       connections[bit] = new OutputSplitterConnection(source, bit);
     }
 
@@ -44,9 +44,9 @@ public class OutputConnection extends Connection {
   private int value;
   private boolean disabled;
 
-  public OutputConnection(final int size) {
-    super(size);
-    this.max = (int)Math.pow(2, size);
+  public OutputConnection(final int bits) {
+    super(bits);
+    this.max = (int)Math.pow(2, bits);
   }
 
   public OutputConnection onStateChange(final InputConnection connection, final Consumer<OptionalInt> onStateChange) {
@@ -117,7 +117,7 @@ public class OutputConnection extends Connection {
     public OutputWidenerConnection(final int size, final OutputConnection source) {
       super(size);
 
-      if(source.size >= size) {
+      if(source.bits >= size) {
         throw new ConnectionMismatchException("Source size must be smaller than widened size");
       }
 
@@ -138,8 +138,8 @@ public class OutputConnection extends Connection {
 
       int value = 0;
 
-      for(int newBit = 0; newBit < this.size; newBit++) {
-        final int oldBit = newBit % this.source.size;
+      for(int newBit = 0; newBit < this.bits; newBit++) {
+        final int oldBit = newBit % this.source.bits;
 
         value |= (this.source.value >> oldBit & 0b1) << newBit;
       }
@@ -172,11 +172,11 @@ public class OutputConnection extends Connection {
       int size = 0;
 
       for(final OutputConnection source : sources) {
-        size += source.size;
+        size += source.bits;
       }
 
-      if(size != this.size) {
-        throw new ConnectionMismatchException("Sum of source sizes (" + size + ") must equal new size (" + this.size + ')');
+      if(size != this.bits) {
+        throw new ConnectionMismatchException("Sum of source sizes (" + size + ") must equal new size (" + this.bits + ')');
       }
 
       this.sources = sources;
@@ -201,7 +201,7 @@ public class OutputConnection extends Connection {
           return OptionalInt.empty();
         }
 
-        for(int oldBitIndex = 0; oldBitIndex < source.size; oldBitIndex++) {
+        for(int oldBitIndex = 0; oldBitIndex < source.bits; oldBitIndex++) {
           value |= (source.value >> oldBitIndex & 0b1) << newBitIndex;
           newBitIndex++;
         }

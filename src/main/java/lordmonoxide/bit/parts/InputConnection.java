@@ -21,18 +21,18 @@ public class InputConnection extends Connection {
     return new InputShrinkerConnection(size, original);
   }
 
-  public InputConnection(final int size) {
-    this(size, value -> { });
+  public InputConnection(final int bits) {
+    this(bits, value -> { });
   }
 
-  public InputConnection(final int size, final Consumer<OptionalInt> onStateChange) {
-    super(size);
+  public InputConnection(final int bits, final Consumer<OptionalInt> onStateChange) {
+    super(bits);
     this.onStateChange = onStateChange;
   }
 
   public InputConnection connectTo(final OutputConnection connection) {
-    if(this.size != connection.size) {
-      throw new ConnectionMismatchException("Attempted to connect " + this.size + " pin input to " + connection.size + " output");
+    if(this.bits != connection.bits) {
+      throw new ConnectionMismatchException("Attempted to connect " + this.bits + " pin input to " + connection.bits + " output");
     }
 
     this.connection = connection;
@@ -62,8 +62,8 @@ public class InputConnection extends Connection {
   public static final class AggregateInputConnection extends InputConnection {
     private final InputConnection[] connections;
 
-    private AggregateInputConnection(final int size, final InputConnection... connections) {
-      super(size);
+    private AggregateInputConnection(final int bits, final InputConnection... connections) {
+      super(bits);
       this.connections = connections;
     }
 
@@ -95,11 +95,11 @@ public class InputConnection extends Connection {
   public static class InputShrinkerConnection extends InputConnection {
     private final InputConnection original;
 
-    public InputShrinkerConnection(final int size, final InputConnection original) {
-      super(size, state -> { });
+    public InputShrinkerConnection(final int bits, final InputConnection original) {
+      super(bits, state -> { });
 
-      if(original.size <= size) {
-        throw new ConnectionMismatchException("Original size must be larger than shrunk size");
+      if(original.bits <= bits) {
+        throw new ConnectionMismatchException("Original bits must be larger than shrunk bits");
       }
 
       this.original = original;
@@ -107,7 +107,7 @@ public class InputConnection extends Connection {
 
     @Override
     public InputConnection connectTo(final OutputConnection connection) {
-      return this.original.connectTo(new OutputConnection.OutputWidenerConnection(this.original.size, connection));
+      return this.original.connectTo(new OutputConnection.OutputWidenerConnection(this.original.bits, connection));
     }
 
     @Override

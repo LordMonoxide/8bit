@@ -14,7 +14,7 @@ public final class Pins {
     final int value = connection.getValue().getAsInt();
     final StringBuilder out = new StringBuilder();
 
-    for(int bit = 0; bit < connection.size; bit++) {
+    for(int bit = 0; bit < connection.bits; bit++) {
       out.insert(0, value >> bit & 0b1);
     }
 
